@@ -8,8 +8,10 @@
 //for backtraces: http://www.gnu.org/software/libc/manual/html_node/Backtraces.html
 #include <execinfo.h> 
 
+#include "hashtbl/hashtbl.h"
+#include "list/list.h"
+
 #include "memchk.h"
-#include "hashtbl.h"
 
 /* 
  * NOTE:
@@ -19,44 +21,6 @@
  *
  * */
 
-
-
-#ifndef likely
-#define likely(x) __builtin_expect((x), 1)
-#endif
-
-#ifndef unlikely
-#define unlikely(x) __builtin_expect((x), 0)
-#endif
-
-/* THIS BELONGS IN HEADER FILE (memchk.h)  */
-
-typedef void * (* malloc_fn_t)( size_t );
-typedef void * (* realloc_fn_t)( void *, size_t );
-typedef void * (* calloc_fn_t)( size_t, size_t );
-typedef void (* free_fn_t)( void * );
-
-
-struct memstats {
-  uint64_t reserved;
-  uint64_t active_reserved;
-  uint32_t alloc;
-  uint32_t active_alloc;
-}
-
-/* 
- * This what we store in the hashtable.
- * The key will be the ptr to the allocated area, which is also stored
- * in the struct in memalloc.ptr.
- * */
-struct memalloc {
-  void * ptr;
-  void * callee;
-  size_t size;
-  char ** bt;
-}
-
-/* ADD ABOVE CONTENT TO HEADER FILE (memchk.h) */
 
 struct memstats stats; //this should be thread-safe.
 
@@ -116,41 +80,46 @@ void record_free(void* ptr)
 }
 #endif
 
-
-#define callee() \
-  __builtin_extract_return_address( \
-      __builtin_return_address(1) )
-
-#define _BTRACE_DEPTH 10
 void * malloc(size_t size)
 {
-  void * ptr = NULL;
-  void * ret = callee();
-
-  void *frames[_BTRACE_DEPTH];
-  size_t bt_size = 0;
+  void * ptr = NULL, *call = NULL;
 
   struct memalloc * mem = NULL;
+  struct hash_entry * entry = NULL;
+
 
   ptr = _malloc(size);
-  if(ptr)
+  if(!ptr)
   {
-    //create a memalloc struct, init, and put in hashtable
-
-    bt_size = backtrace(frames, _BTRACE_DEPTH);
-    mem->bt = backtrace_symbols(frames, bt_size);
-
-    //initialize reamining struct fields.
+    return NULL;
   }
+
+  call = calladdr();
+
+  //create a memalloc struct, init, and put in hashtable
+  if(!(mem = _malloc(sizeof(struct memalloc))))
+  {
+    //ERROR
+  }
+
+  //initialize struct fields.
+  mem->ptr = ptr; //kinda useless, only first ptr stored.... hmmmmm :S
+  mem->calladdr = call;
+  //The same calling code will usually allocate the same size. *But not necessarily*
+  //Not for precise accounting (Don't want to use up too many resources for accounting).
+  mem->size = size; 
+  mem->bt_size = get_backtrace(mem->bt);
+  hash_entry_init(mem->hentry, ptr, sizeof(ptr));
+  hash_table_insert_safe( _milu_htable, mem->hentry, ptr, sizeof(ptr) );
 
 #ifdef _VERBOSE
   record_malloc(ptr, size);
 #endif
-  
+
   stats.alloc++;
   stats.active_alloc++;
   stats.reserved += size;
-  stats.active_reserved += size*nmemb;
+  stats.active_reserved += size;
 
   /* whatever we got to do with the ptr */
   return ptr;
@@ -158,10 +127,35 @@ void * malloc(size_t size)
 
 void * calloc(size_t nmemb, size_t size)
 {
-  void * ptr = NULL;
-  void * ret = callee();
+  void * ptr = NULL, *call = NULL;
+
+  struct memalloc * mem = NULL;
+  struct hash_entry * entry = NULL;
+
 
   ptr = _calloc(nmemb, size);
+  if(!ptr)
+  {
+    return NULL;
+  }
+  
+  call = calladdr();
+
+  //create a memalloc struct, init, and put in hashtable
+  if(!(mem = _malloc(sizeof(struct memalloc))))
+  {
+    //ERROR
+  }
+
+  //initialize struct fields.
+  mem->ptr = ptr;
+  mem->calladdr = call;
+  //The same calling code will usually allocate the same size. *But not necessarily*
+  //Not for precise accounting (Don't want to use up too many resources for accounting).
+  mem->size = size*nmemb; 
+  mem->bt_size = get_backtrace(mem->bt);
+  hash_entry_init(mem->hentry, ptr, sizeof(ptr));
+  hash_table_insert_safe( _milu_htable, mem->hentry, ptr, sizeof(ptr) );
 
 #ifdef _VERBOSE
   record_malloc(ptr, size*nmemb);
@@ -177,52 +171,149 @@ void * calloc(size_t nmemb, size_t size)
 
 void * realloc(void * ptr, size_t size)
 {
+  void * nptr = NULL, *call = NULL;
+
+  struct memalloc * mem = NULL, * mem_old = NULL;
+  struct hash_entry * entry = NULL;
   size_t old_size = 0;
 
-  void * ptr_ret = NULL;
-  void * ret = callee();
 
-  ptr_ret = _realloc(ptr, size);
+  nptr = _realloc(ptr, size);
+  if(!nptr)
+  {
+    return NULL;
+  }
+  call = calladdr();
+
+  //look for the entry...
+  entry = hash_table_del_key_safe( _milu_htable, ptr, sizeof(ptr) );
+  if( likely(entry) )
+  {
+    mem_old = hash_entry(entry, struct memalloc, hentry);
+  }
+
+  //create a memalloc struct, init, and put in hashtable
+  if(!(mem = (struct memalloc *) _malloc(sizeof(struct memalloc))))
+  {
+    //ERROR
+  }
+
+  //initialize struct fields.
+  mem->ptr = nptr; 
+  mem->calladdr = call;
+  mem->size = size; 
+  mem->bt_size = get_backtrace(mem->bt);
+  hash_entry_init(mem->hentry, nptr, sizeof(ptr));
+  hash_table_insert_safe( _milu_htable, mem->hentry, nptr, sizeof(nptr) );
 
 #ifdef _VERBOSE
-  record_malloc(ptr, size);
+  if(mem_old)
+  {
+    record_free(mem_old->ptr, mem_old->size);
+  }
+  record_malloc(nptr, size);
 #endif
   
   //alloc is not increased because this is a REALLOC.
   //we need to get the old_size from the hash table...
-  stats.reserved -= oldsize;
-  stats.active_reserved -= oldsize;
+  if(mem_old)
+  {
+    stats.reserved -= mem_old->size;
+    stats.active_reserved -= mem_old->size;
+
+    //cleanup
+    _free(mem_old->bt);
+    _free(mem_old);
+  }
   stats.reserved += size;
   stats.active_reserved += size;
 
   // we need to update ptr and size in hashtable...
 
-  return ptr;
+  return nptr;
 }
 
 void free(void * ptr)
 {
+  struct memalloc * mem = NULL;
   size_t size = 0;
 
-  //clean up hashtable
-  _free(ptr);
+  //here we do things differently... to protect against double free's or
+  //unallocated memory frees we first look for the ptr in the hashtable..
+
+  //look for the entry...
+  entry = hash_table_del_key_safe( _milu_htable, ptr, sizeof(ptr) );
+  if( unlikely(!entry) )
+  {
+    mem_report();
+    //clean up hashtable, milu...
+    milu_cleanup();
+  }
+  else
+  {
+    mem = hash_entry( entry, struct memalloc, hentry );
+  }
+
   record_free(ptr);
+  _free(ptr); //this will fail here if we get a bad ptr. No problem.
 
   stats.active_alloc--;
-  stats.active_reserved -= size;
+  stats.active_reserved -= mem->size;
+
+  //if we get here mem will NOT be NULL, but check for sake of... whatever.
+  if (likely(mem)) {
+    _free(mem->bt);
+    _free(mem);
+  }
 
   return;
 }
 
+void mem_report(void)
+{
+  int i;
+
+  fprintf( stdout, "Total Allocations: %lu\n", stats.alloc );
+  fprintf( stdout, "Unfreed Allocations: %lu\n", stats.active_alloc );
+  fprintf( stdout, "Total Memory Reserved: %lu\n", stats.reserved );
+  fprintf( stdout, "Total Unfreed Memory: %lu\n", stats.active_reserved );
+
+  //Traverse hash table showing existing leaks.
+  fprintf( stdout, "\n\nMemory Leaks Found: SUMMARY\n\n" );
+  hash_table_for_each_safe( entry, _milu_table, &lh, i ) {
+    mem = hash_entry( entry, struct memalloc, hentry );
+
+    fprintf( stdout, "Allocation made at %p for %ld bytes\n", mem->calladdr, mem->size );
+    fprintf( stdout, "Unallocation ptr to heap address: %p\n", mem->ptr );
+    for( i=0 ; i<mem->bt_size ; i++)
+    {
+     fprintf( stdout, "[FRAME %d] %s\n", i, mem->bt[i] );
+    }
+
+    fprintf( stdout, "\n\n");
+  }
+}
+
+
+void milu_cleanup(void)
+{
+  struct memalloc * mem = NULL;
+  struct hash_entry * entry = NULL;
+  struct list_head lh:
+  uint32_t i = 0;
+
+
+  //clean this mess up ;)
+  hash_table_for_each_safe( entry, _milu_table, &lh, i ) {
+    mem = hash_entry( entry, struct memalloc, hentry );
+    hash_table_del_hash_entry( _milu_table, entry );
+    _free(mem->bt);
+    _free(mem);
+  }
+}
 
 void __attribute__ ((destructor)) memchk_stats(void) 
 {
-  char buf[255];
-  
-  fprintf(stdout, "Total Allocations: %lu\n", stats.alloc);
-  fprintf(stdout, "Unfreed Allocations: %lu\n", stats.active_alloc);
-  fprintf(stdout, "Total Memory Reserved: %lu\n", stats.reserved);
-  fprintf(stdout, "Total Unfreed Memory: %lu\n", stats.active_reserved);
-  
-  //Traverse hash table showing existing leaks.
+  mem_report();
+  mile_cleanup();
 }
