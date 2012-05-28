@@ -168,14 +168,8 @@ static inline void hash_table_finit(struct hash_table *h)
  */
 void hash_table_insert(struct hash_table *h,
 		       struct hash_entry *e,
-		       const void *key, size_t len)
-{
-	unsigned int n;
+		       const void *key, size_t len);
 
-	hash_entry_init(e, key, len);
-	n = hash_table_hash_code(h, key, len);
-	list_add(&(e->list), &(h->table[n].list));
-}
 
 /* insert_hash_table_safe()
  * @h: &struct hash_table hash table to insert hash_entry into
@@ -186,17 +180,8 @@ void hash_table_insert(struct hash_table *h,
  */
 void hash_table_insert_safe(struct hash_table *h,
 			    struct hash_entry *e,
-			    const void *key, size_t len)
-{
-	unsigned int n;
+			    const void *key, size_t len);
 
-	hash_entry_init(e, key, len);
-	n = hash_table_hash_code_safe(h, key, len);
-
-	hash_table_bucket_lock(h, n);
-	list_add(&(e->list), &(h->table[n].list));
-	hash_table_bucket_unlock(h, n);
-}
 
 /* hash_table_lookup_key()
  * @h: hash table to look into
@@ -210,21 +195,7 @@ void hash_table_insert_safe(struct hash_table *h,
  */
 struct hash_entry *hash_table_lookup_key(const struct hash_table *h,
 					 const void *key,
-					 size_t len)
-{
-	unsigned int key = hash_table_hash_code(h, str, len);
-	struct hash_entry *tmp;
-	struct list_head *pos;
-
-	list_for_each(pos, &(h->table[key].list)) {
-		tmp = list_entry(pos, struct hash_entry, list);
-
-		if ((tmp->klen == len)
-		    && (h->keycmp(tmp->key, str, tmp->klen) == 0))
-			return tmp;
-	}
-	return NULL;
-}
+					 size_t len);
 
 /* hash_table_lookup_key_safe()
  * @h: hash table to look into
@@ -238,27 +209,8 @@ struct hash_entry *hash_table_lookup_key(const struct hash_table *h,
  */
 struct hash_entry *hash_table_lookup_key_safe(struct hash_table *h,
 					      const void *str,
-					      size_t len)
-{
+					      size_t len);
 
-	unsigned int key = hash_table_hash_code_safe(h, str, len);
-	struct hash_entry *tmp;
-	struct list_head *pos;
-
-	hash_table_bucket_lock(h, key);
-
-	list_for_each(pos, &(h->table[key].list)) {
-		tmp = list_entry(pos, struct hash_entry, list);
-
-		if (memcmp(tmp->key, str, tmp->klen) == 0) {
-			hash_table_bucket_unlock(h, key);
-			return tmp;
-		}
-	}
-
-	hash_table_bucket_unlock(h, key);
-	return NULL;
-}
 
 /* same as hash_table_lookup_key() but this function takes a valid hash_entry as input.
  * a valid hash_entry is the one that has key, len set appropriately. in other words, a
@@ -284,33 +236,10 @@ static inline struct hash_entry *hash_table_lookup_hash_entry_safe(struct hash_t
 }
 
 struct hash_entry *hash_table_del_key(struct hash_table *h, const void *key,
-				      size_t len)
-{
-	struct hash_entry *e;
-
-	if ((e = hash_table_lookup_key(h, str, len)) == NULL)
-		return NULL;
-
-	list_del_init(&(e->list));
-	return e;
-}
+				      size_t len);
 
 struct hash_entry *hash_table_del_key_safe(struct hash_table *h,
-					   const void *key, size_t len)
-{
-	struct hash_entry *e;
-	unsigned int n = hash_table_hash_code(h, str, len);
-
-	hash_table_bucket_lock(h, n);
-	if ((e = hash_table_lookup_key(h, str, len)) != NULL) {
-		list_del_init(&(e->list));
-		hash_table_bucket_unlock(h, n);
-		return e;
-	}
-
-	hash_table_bucket_unlock(h, n);
-	return NULL;
-}
+					   const void *key, size_t len);
 
 static inline struct hash_entry *hash_table_del_hash_entry(struct hash_table *h,
 							   struct hash_entry *e)
