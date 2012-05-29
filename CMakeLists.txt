@@ -6,6 +6,7 @@ add_subdirectory(src)
 # version
 set (milu_VERSION_MAJOR 0)
 set (milu_VERSION_MINOR 1)
+set (milu_VERSION_PATCH 0)
 
 # headers for CMake settings
 configure_file (
@@ -17,7 +18,7 @@ configure_file (
 include_directories("${PROJECT_BINARY_DIR}")
 
 # compiler stuff
-set(CMAKE_CXX_FLAGS "-g -Wall")
+set(CMAKE_CXX_FLAGS "-ggdb -Wall -W")
 
 # compile as C99
 add_definitions(-std=c99)
