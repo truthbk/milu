@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 project (milu C)
 
-add_subdirectory(src)
+#add_subdirectory(src)
 
 # version
 set (milu_VERSION_MAJOR 0)
@@ -9,13 +9,19 @@ set (milu_VERSION_MINOR 1)
 set (milu_VERSION_PATCH 0)
 
 # headers for CMake settings
-configure_file (
-	"${PROJECT_SOURCE_DIR}/miluConfig.h.in"
-	"${PROJECT_BINARY_DIR}/miluConfig.h"
-	)
+#configure_file (
+#	"${PROJECT_SOURCE_DIR}/miluConfig.h.in"
+#	"${PROJECT_BINARY_DIR}/miluConfig.h"
+#	)
 
 # include dirs
-include_directories("${PROJECT_BINARY_DIR}")
+include_directories("${PROJECT_BINARY_DIR}
+	${PROJECT_SRC_DIR}/include/milu/
+	${PROJECT_SRC_DIR}/include/miluhlib/hashtbl
+	${PROJECT_SRC_DIR}/include/miluhlib/hash
+	${PROJECT_SRC_DIR}/include/miluhlib/list")
+
+add_subdirectory(src)
 
 # compiler stuff
 set(CMAKE_CXX_FLAGS "-ggdb -Wall -W")

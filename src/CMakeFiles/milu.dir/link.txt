@@ -1,0 +1,2 @@
+/usr/bin/ar cr libmilu.a  CMakeFiles/milu.dir/milu/milu.c.o
+/usr/bin/ranlib libmilu.a
