@@ -15,11 +15,9 @@ set (milu_VERSION_PATCH 0)
 #	)
 
 # include dirs
-include_directories("${PROJECT_BINARY_DIR}
-	${PROJECT_SRC_DIR}/include/milu/
-	${PROJECT_SRC_DIR}/include/miluhlib/hashtbl
-	${PROJECT_SRC_DIR}/include/miluhlib/hash
-	${PROJECT_SRC_DIR}/include/miluhlib/list")
+include_directories(${PROJECT_BINARY_DIR}
+	${PROJECT_SOURCE_DIR}/include/milu/
+	${PROJECT_SOURCE_DIR}/include/miluhlib)
 
 add_subdirectory(src)
 

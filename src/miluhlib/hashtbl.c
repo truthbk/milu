@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "hashtbl.h"
+#include "hashtbl/hashtbl.h"
 
 
 /* insert_hash_table()
@@ -54,15 +54,15 @@ struct hash_entry *hash_table_lookup_key(const struct hash_table *h,
 					 const void *key,
 					 size_t len)
 {
-	unsigned int key = hash_table_hash_code(h, str, len);
+	unsigned int hcode = hash_table_hash_code(h, key, len);
 	struct hash_entry *tmp;
 	struct list_head *pos;
 
-	list_for_each(pos, &(h->table[key].list)) {
+	list_for_each(pos, &(h->table[hcode].list)) {
 		tmp = list_entry(pos, struct hash_entry, list);
 
 		if ((tmp->klen == len)
-		    && (h->keycmp(tmp->key, str, tmp->klen) == 0))
+		    && (h->keycmp(tmp->key, key, tmp->klen) == 0))
 			return tmp;
 	}
 	return NULL;
@@ -79,26 +79,26 @@ struct hash_entry *hash_table_lookup_key(const struct hash_table *h,
  * 		  function is not thread safe. 
  */
 struct hash_entry *hash_table_lookup_key_safe(struct hash_table *h,
-					      const void *str,
+					      const void *key,
 					      size_t len)
 {
 
-	unsigned int key = hash_table_hash_code_safe(h, str, len);
+	unsigned int hcode = hash_table_hash_code_safe(h, key, len);
 	struct hash_entry *tmp;
 	struct list_head *pos;
 
-	hash_table_bucket_lock(h, key);
+	hash_table_bucket_lock(h, hcode);
 
-	list_for_each(pos, &(h->table[key].list)) {
+	list_for_each(pos, &(h->table[hcode].list)) {
 		tmp = list_entry(pos, struct hash_entry, list);
 
-		if (memcmp(tmp->key, str, tmp->klen) == 0) {
-			hash_table_bucket_unlock(h, key);
+		if (memcmp(tmp->key, key, tmp->klen) == 0) {
+			hash_table_bucket_unlock(h, hcode);
 			return tmp;
 		}
 	}
 
-	hash_table_bucket_unlock(h, key);
+	hash_table_bucket_unlock(h, hcode);
 	return NULL;
 }
 
@@ -107,7 +107,7 @@ struct hash_entry *hash_table_del_key(struct hash_table *h, const void *key,
 {
 	struct hash_entry *e;
 
-	if ((e = hash_table_lookup_key(h, str, len)) == NULL)
+	if ((e = hash_table_lookup_key(h, key, len)) == NULL)
 		return NULL;
 
 	list_del_init(&(e->list));
@@ -118,10 +118,10 @@ struct hash_entry *hash_table_del_key_safe(struct hash_table *h,
 					   const void *key, size_t len)
 {
 	struct hash_entry *e;
-	unsigned int n = hash_table_hash_code(h, str, len);
+	unsigned int n = hash_table_hash_code(h, key, len);
 
 	hash_table_bucket_lock(h, n);
-	if ((e = hash_table_lookup_key(h, str, len)) != NULL) {
+	if ((e = hash_table_lookup_key(h, key, len)) != NULL) {
 		list_del_init(&(e->list));
 		hash_table_bucket_unlock(h, n);
 		return e;

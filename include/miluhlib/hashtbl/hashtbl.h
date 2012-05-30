@@ -1,6 +1,10 @@
-#ifndef _hashtbl_t_H
-#define _hashtbl_t_H
+#ifndef _HASHTBL_H
+#define _HASHTBL_H
 
+#include <stdlib.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
 #include <pthread.h>
 
 #include "list/list.h"
@@ -19,6 +23,7 @@ typedef int (*keycmp_ptr) (const void *, const void *, size_t);
  */
 
 #define N_HASH_PRIMES 25
+
 uint64_t hashtbl_prime_sz[N_HASH_PRIMES] = {
     97,
     193,
@@ -55,7 +60,7 @@ struct hash_entry {
     void * key;
     size_t klen;
     struct list_head list; //collision resolved by chaining
-}
+};
 
 struct hash_table {
     struct hash_entry *table;
@@ -64,13 +69,13 @@ struct hash_table {
     pthread_mutex_t *bucket_locks;
 
     pthread_mutex_t lock;
-    hash_fn my_hash_fn;
+    __hash my_hash_fn;
     keycmp_ptr keycmp;
 
     /* private variables */
     unsigned int __ht_i;
     struct list_head *pos;
-}
+};
 
 
 /**
@@ -127,7 +132,7 @@ static inline int hash_table_hash_code(const struct hash_table *t,
         const void *key, size_t len)
 {
 
-    return (__hash(key, len) % t->buckets);
+    return (t->my_hash_fn(key, len) % t->buckets);
 }
 
 static inline int hash_table_hash_code_safe(struct hash_table *t,
@@ -136,7 +141,7 @@ static inline int hash_table_hash_code_safe(struct hash_table *t,
     int n;
 
     hash_table_lock(t);
-    n = __hash(key, len) % t->buckets;
+    n = t->my_hash_fn(key, len) % t->buckets;
     hash_table_unlock(t);
 
     return n;
@@ -175,7 +180,7 @@ static inline int hash_table_init(struct hash_table *h, unsigned int b,
 
 
     /* Lets decide the REAL hash table size  */
-    hashtblsz = b / _LOADFACTOR;
+    hashtblsz = b / _LOAD_FACTOR;
     if(hashtblsz <= hashtbl_prime_sz[N_HASH_PRIMES-1])
     {
         for( i=0 ; i<N_HASH_PRIMES ; i++ )
@@ -271,7 +276,7 @@ struct hash_entry *hash_table_lookup_key(const struct hash_table *h,
  *                function is not thread safe. 
  */
 struct hash_entry *hash_table_lookup_key_safe(struct hash_table *h,
-        const void *key
+        const void *key,
         size_t len);
 
 
@@ -281,8 +286,7 @@ struct hash_entry *hash_table_lookup_key_safe(struct hash_table *h,
  */
 static inline struct hash_entry *hash_table_lookup_hash_entry(const struct
         hash_table *h,
-        const struct
-        hash_entry *e)
+        const struct hash_entry *e)
 {
     return (hash_table_lookup_key(h, e->key, e->klen));
 }
@@ -350,8 +354,6 @@ for(((pos)= (htable)->table[(hti)].list.next);          \
         ((pos) != &((htable)->table[(hti)].list)) &&    \
         ((hentry) = ((struct hash_entry *)((char *)((pos))-(unsigned long)(&((struct hash_entry *)0)->list))) );        \
         (pos)= (pos)->next)
-
-#endif
 
 
 #endif

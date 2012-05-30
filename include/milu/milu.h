@@ -23,9 +23,9 @@ typedef void (* free_fn_t)( void * );
 struct memstats {
   uint64_t reserved;
   uint64_t active_reserved;
-  uint32_t alloc;
-  uint32_t active_alloc;
-}
+  uint64_t alloc;
+  uint64_t active_alloc;
+};
 
 /* 
  * This what we store in the hashtable.
