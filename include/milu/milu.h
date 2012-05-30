@@ -40,9 +40,9 @@ struct memstats {
  * */
 struct memalloc {
   void          *ptr; //kinda useless, only one ptr stored.... hmmmmm (list) :S
-  void          *calladdr;
+  uintptr_t     calladdr;
 
-  uint8_t      bt_size;
+  uint8_t       bt_size;
   char          **bt;
   size_t        size;
 
@@ -61,9 +61,15 @@ struct pool {
 };
 #endif
 
+/* I think this actually returns uintptr_t, not void *  */
 #define calladdr() \
-  __builtin_extract_return_address( \
-      __builtin_return_address(1) )
+  (__builtin_extract_return_address( \
+      (__builtin_return_address(0)))) 
+
+#if 0
+#define calladdr() \
+      (__builtin_return_address(0)) 
+#endif
 
 #define _BTRACE_DEPTH 10
 #define get_backtrace(bt) ({ \

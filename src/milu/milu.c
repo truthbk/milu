@@ -102,7 +102,8 @@ void record_free(void* ptr)
 
 void * malloc(size_t size)
 {
-    void * ptr = NULL, *call = NULL;
+    void * ptr = NULL;
+    uintptr_t call = 0;
 
     struct memalloc * mem = NULL;
     struct hash_entry * entry = NULL;
@@ -125,7 +126,7 @@ void * malloc(size_t size)
 
     if(likely(milu_enabled))
     {
-        call = (void *)calladdr();
+        call = calladdr();
 
         //create a memalloc struct, init, and put in hashtable
         if(!(mem = _malloc(sizeof(struct memalloc))))
@@ -160,7 +161,8 @@ out:
 
 void * calloc(size_t nmemb, size_t size)
 {
-    void * ptr = NULL, *call = NULL;
+    void * ptr = NULL;
+    uintptr_t call = 0;
 
     struct memalloc * mem = NULL;
     struct hash_entry * entry = NULL;
@@ -183,7 +185,7 @@ void * calloc(size_t nmemb, size_t size)
 
     if(likely(milu_enabled))
     {
-        call = (void *)calladdr();
+        call = calladdr();
 
         //create a memalloc struct, init, and put in hashtable
         if(!(mem = _malloc(sizeof(struct memalloc))))
@@ -216,7 +218,8 @@ void * calloc(size_t nmemb, size_t size)
 
 void * realloc(void * ptr, size_t size)
 {
-    void * nptr = NULL, *call = NULL;
+    void * nptr = NULL;
+    uintptr_t call = 0;
 
     struct memalloc * mem = NULL, * mem_old = NULL;
     struct hash_entry * entry = NULL;
@@ -240,7 +243,7 @@ void * realloc(void * ptr, size_t size)
 
     if(likely(milu_enabled))
     {
-        call = (void *) calladdr();
+        call = calladdr();
 
         //look for the entry...
         entry = hash_table_del_key_safe( _milu_htable, ptr, sizeof(ptr) );
@@ -356,7 +359,7 @@ void mem_report(void)
     hash_table_for_each_safe( entry, _milu_htable, lh, i ) {
         mem = hash_entry( entry, struct memalloc, hentry );
 
-        fprintf( stdout, "Allocation made at %p for %ld bytes\n", mem->calladdr, mem->size );
+        fprintf( stdout, "Allocation made at %lu for %ld bytes\n", mem->calladdr, mem->size );
         fprintf( stdout, "Unallocation ptr to heap address: %p\n", mem->ptr );
         for( i=0 ; i<mem->bt_size ; i++)
         {
