@@ -6,3 +6,5 @@ C_FLAGS = -I/home/truth/Development/github/milu -I/home/truth/Development/github
 
 C_DEFINES = 
 
+# TARGET_FLAGS = -fPIC
+

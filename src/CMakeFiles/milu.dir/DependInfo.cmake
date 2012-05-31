@@ -10,5 +10,5 @@ SET(CMAKE_C_COMPILER_ID "GNU")
 
 # Targets to which this target links.
 SET(CMAKE_TARGET_LINKED_INFO_FILES
-  "/home/truth/Development/github/milu/src/CMakeFiles/libmilu.dir/DependInfo.cmake"
+  "/home/truth/Development/github/milu/src/CMakeFiles/hmilu.dir/DependInfo.cmake"
   )

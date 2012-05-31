@@ -1,3 +1,3 @@
 FILE(REMOVE_RECURSE
-  "liblibmilu.a"
+  "libhmilu.a"
 )

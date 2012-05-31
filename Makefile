@@ -99,17 +99,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named libmilu
+# Target rules for targets named hmilu
 
 # Build rule for target.
-libmilu: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 libmilu
-.PHONY : libmilu
+hmilu: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 hmilu
+.PHONY : hmilu
 
 # fast build rule for target.
-libmilu/fast:
-	$(MAKE) -f src/CMakeFiles/libmilu.dir/build.make src/CMakeFiles/libmilu.dir/build
-.PHONY : libmilu/fast
+hmilu/fast:
+	$(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/build
+.PHONY : hmilu/fast
 
 #=============================================================================
 # Target rules for targets named milu
@@ -132,7 +132,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... libmilu"
+	@echo "... hmilu"
 	@echo "... milu"
 .PHONY : help
 

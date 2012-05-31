@@ -4,7 +4,7 @@ SET(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 SET(CMAKE_DEPENDS_CHECK_C
-  "/home/truth/Development/github/milu/src/miluhlib/hashtbl.c" "/home/truth/Development/github/milu/src/CMakeFiles/libmilu.dir/miluhlib/hashtbl.c.o"
+  "/home/truth/Development/github/milu/src/miluhlib/hashtbl.c" "/home/truth/Development/github/milu/src/CMakeFiles/hmilu.dir/miluhlib/hashtbl.c.o"
   )
 SET(CMAKE_C_COMPILER_ID "GNU")
 

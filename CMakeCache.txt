@@ -132,13 +132,16 @@ CMAKE_USE_RELATIVE_PATHS:BOOL=OFF
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
 //Dependencies for target
+hmilu_LIB_DEPENDS:STATIC=
+
+//Dependencies for target
 libmilu_LIB_DEPENDS:STATIC=
 
 //Value Computed by CMake
 milu_BINARY_DIR:STATIC=/home/truth/Development/github/milu
 
 //Dependencies for the target
-milu_LIB_DEPENDS:STATIC=general;libmilu;
+milu_LIB_DEPENDS:STATIC=general;hmilu;
 
 //Value Computed by CMake
 milu_SOURCE_DIR:STATIC=/home/truth/Development/github/milu

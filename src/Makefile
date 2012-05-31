@@ -99,18 +99,18 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-src/CMakeFiles/libmilu.dir/rule:
-	cd /home/truth/Development/github/milu && $(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/libmilu.dir/rule
-.PHONY : src/CMakeFiles/libmilu.dir/rule
+src/CMakeFiles/hmilu.dir/rule:
+	cd /home/truth/Development/github/milu && $(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/hmilu.dir/rule
+.PHONY : src/CMakeFiles/hmilu.dir/rule
 
 # Convenience name for target.
-libmilu: src/CMakeFiles/libmilu.dir/rule
-.PHONY : libmilu
+hmilu: src/CMakeFiles/hmilu.dir/rule
+.PHONY : hmilu
 
 # fast build rule for target.
-libmilu/fast:
-	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/libmilu.dir/build.make src/CMakeFiles/libmilu.dir/build
-.PHONY : libmilu/fast
+hmilu/fast:
+	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/build
+.PHONY : hmilu/fast
 
 # Convenience name for target.
 src/CMakeFiles/milu.dir/rule:
@@ -155,7 +155,7 @@ miluhlib/hashtbl.o: miluhlib/hashtbl.c.o
 
 # target to build an object file
 miluhlib/hashtbl.c.o:
-	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/libmilu.dir/build.make src/CMakeFiles/libmilu.dir/miluhlib/hashtbl.c.o
+	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/miluhlib/hashtbl.c.o
 .PHONY : miluhlib/hashtbl.c.o
 
 miluhlib/hashtbl.i: miluhlib/hashtbl.c.i
@@ -163,7 +163,7 @@ miluhlib/hashtbl.i: miluhlib/hashtbl.c.i
 
 # target to preprocess a source file
 miluhlib/hashtbl.c.i:
-	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/libmilu.dir/build.make src/CMakeFiles/libmilu.dir/miluhlib/hashtbl.c.i
+	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/miluhlib/hashtbl.c.i
 .PHONY : miluhlib/hashtbl.c.i
 
 miluhlib/hashtbl.s: miluhlib/hashtbl.c.s
@@ -171,7 +171,7 @@ miluhlib/hashtbl.s: miluhlib/hashtbl.c.s
 
 # target to generate assembly for a file
 miluhlib/hashtbl.c.s:
-	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/libmilu.dir/build.make src/CMakeFiles/libmilu.dir/miluhlib/hashtbl.c.s
+	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/miluhlib/hashtbl.c.s
 .PHONY : miluhlib/hashtbl.c.s
 
 # Help Target
@@ -181,7 +181,7 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
-	@echo "... libmilu"
+	@echo "... hmilu"
 	@echo "... milu"
 	@echo "... rebuild_cache"
 	@echo "... milu/milu.o"

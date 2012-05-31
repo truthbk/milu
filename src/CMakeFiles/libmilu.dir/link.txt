@@ -1,2 +1,0 @@
-/usr/bin/ar cr liblibmilu.a  CMakeFiles/libmilu.dir/miluhlib/hashtbl.c.o
-/usr/bin/ranlib liblibmilu.a
