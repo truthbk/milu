@@ -1,8 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 project (milu C)
 
-#add_subdirectory(src)
-
 # version
 set (milu_VERSION_MAJOR 0)
 set (milu_VERSION_MINOR 1)
