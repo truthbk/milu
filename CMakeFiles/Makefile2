@@ -38,19 +38,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/bin/cmake
+CMAKE_COMMAND = /opt/local/bin/cmake
 
 # The command to remove a file.
-RM = /usr/bin/cmake -E remove -f
+RM = /opt/local/bin/cmake -E remove -f
 
 # The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/bin/ccmake
+CMAKE_EDIT_COMMAND = /opt/local/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/truth/Development/github/milu
+CMAKE_SOURCE_DIR = /Users/Truth/Development/github/milu
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/truth/Development/github/milu
+CMAKE_BINARY_DIR = /Users/Truth/Development/github/milu
 
 #=============================================================================
 # Directory level rules for directory src
@@ -76,7 +76,7 @@ src/preinstall:
 src/CMakeFiles/hmilu.dir/all:
 	$(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/depend
 	$(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/truth/Development/github/milu/CMakeFiles  1
+	$(CMAKE_COMMAND) -E cmake_progress_report /Users/Truth/Development/github/milu/CMakeFiles  1
 	@echo "Built target hmilu"
 .PHONY : src/CMakeFiles/hmilu.dir/all
 
@@ -86,9 +86,9 @@ all: src/CMakeFiles/hmilu.dir/all
 
 # Build rule for subdir invocation for target.
 src/CMakeFiles/hmilu.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/truth/Development/github/milu/CMakeFiles 1
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/Truth/Development/github/milu/CMakeFiles 1
 	$(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/hmilu.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/truth/Development/github/milu/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/Truth/Development/github/milu/CMakeFiles 0
 .PHONY : src/CMakeFiles/hmilu.dir/rule
 
 # Convenience name for target.
@@ -111,7 +111,7 @@ clean: src/CMakeFiles/hmilu.dir/clean
 src/CMakeFiles/milu.dir/all: src/CMakeFiles/hmilu.dir/all
 	$(MAKE) -f src/CMakeFiles/milu.dir/build.make src/CMakeFiles/milu.dir/depend
 	$(MAKE) -f src/CMakeFiles/milu.dir/build.make src/CMakeFiles/milu.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/truth/Development/github/milu/CMakeFiles  2
+	$(CMAKE_COMMAND) -E cmake_progress_report /Users/Truth/Development/github/milu/CMakeFiles  2
 	@echo "Built target milu"
 .PHONY : src/CMakeFiles/milu.dir/all
 
@@ -121,9 +121,9 @@ all: src/CMakeFiles/milu.dir/all
 
 # Build rule for subdir invocation for target.
 src/CMakeFiles/milu.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/truth/Development/github/milu/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/Truth/Development/github/milu/CMakeFiles 2
 	$(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/milu.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/truth/Development/github/milu/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/Truth/Development/github/milu/CMakeFiles 0
 .PHONY : src/CMakeFiles/milu.dir/rule
 
 # Convenience name for target.

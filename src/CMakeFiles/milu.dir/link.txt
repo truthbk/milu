@@ -1,1 +1,1 @@
-/usr/bin/gcc  -fPIC    -shared -Wl,-soname,libmilu.so -o libmilu.so CMakeFiles/milu.dir/milu/milu.c.o libhmilu.a 
+/usr/bin/gcc   -dynamiclib -Wl,-headerpad_max_install_names   -o libmilu.dylib -install_name /Users/Truth/Development/github/milu/src/libmilu.dylib CMakeFiles/milu.dir/milu/milu.c.o libhmilu.a 
