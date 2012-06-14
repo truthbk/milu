@@ -20,10 +20,10 @@ include_directories(${PROJECT_BINARY_DIR}
 add_subdirectory(src)
 
 # compiler stuff
-#if(APPLE)
-#	set(CMAKE_C_COMPILER "gcc-4.2")
-#	set(CMAKE_CXX_COMPILER "c++-4.2")
-#endif(APPLE)
+if(APPLE)
+	set(CMAKE_C_COMPILER "gcc-4.2")
+	set(CMAKE_CXX_COMPILER "c++-4.2")
+endif(APPLE)
 set(CMAKE_CXX_FLAGS "-ggdb -Wall -W")
 
 # compile as C99

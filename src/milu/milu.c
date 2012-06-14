@@ -349,10 +349,10 @@ void mem_report(void)
     struct hash_entry * entry = NULL;
     struct list_head * lh = NULL;
 
-    fprintf( stdout, "Total Allocations: %llu\n", stats.alloc );
-    fprintf( stdout, "Unfreed Allocations: %llu\n", stats.active_alloc );
-    fprintf( stdout, "Total Memory Reserved: %llu\n", stats.reserved );
-    fprintf( stdout, "Total Unfreed Memory: %llu\n", stats.active_reserved );
+    fprintf( stdout, "Total Allocations: %lu\n", stats.alloc );
+    fprintf( stdout, "Unfreed Allocations: %lu\n", stats.active_alloc );
+    fprintf( stdout, "Total Memory Reserved: %lu\n", stats.reserved );
+    fprintf( stdout, "Total Unfreed Memory: %lu\n", stats.active_reserved );
 
     //Traverse hash table showing existing leaks.
     fprintf( stdout, "\n\nMemory Leaks Found: SUMMARY\n\n" );
