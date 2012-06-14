@@ -1,2 +1,0 @@
-/home/truth/Development/github/milu/src/CMakeFiles/hmilu.dir
-/home/truth/Development/github/milu/src/CMakeFiles/milu.dir

@@ -1,1 +1,0 @@
-/usr/bin/gcc  -fPIC    -shared -Wl,-soname,libmilu.so -o libmilu.so CMakeFiles/milu.dir/milu/milu.c.o libhmilu.a 
