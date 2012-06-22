@@ -17,14 +17,11 @@ include_directories(${PROJECT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/include/milu/
 	${PROJECT_SOURCE_DIR}/include/miluhlib)
 
-add_subdirectory(src)
-
-# compiler stuff
-if(APPLE)
-	set(CMAKE_C_COMPILER "gcc-4.2")
-	set(CMAKE_CXX_COMPILER "c++-4.2")
-endif(APPLE)
+set(CMAKE_C_FLAGS "-ggdb -Wall -W")
 set(CMAKE_CXX_FLAGS "-ggdb -Wall -W")
 
 # compile as C99
-add_definitions(-std=c99)
+add_definitions(-std=gnu99)
+
+add_subdirectory(src)
+

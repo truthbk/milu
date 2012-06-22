@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <pthread.h>
+#include <errno.h>
 
 #include "list/list.h"
 
@@ -24,7 +25,10 @@ typedef int (*keycmp_ptr) (const void *, const void *, size_t);
 
 #define N_HASH_PRIMES 25
 
-static const int64_t hashtbl_prime_sz[N_HASH_PRIMES];
+static const uint64_t hashtbl_prime_sz[N_HASH_PRIMES] = {
+    97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593, 49157, 98317, 196613, 393241, 786433, 1572869,
+    3145739, 6291469, 12582917, 25165843, 50331653, 100663319, 201326611, 402653189, 805306457, 1610612741
+};
 
 #ifndef _LOAD_FACTOR
 #define _LOAD_FACTOR 0.75f /* Default load factor for hashtable is 3/4  */
@@ -80,27 +84,15 @@ static inline int hash_table_unlock(struct hash_table *t)
     return (pthread_mutex_unlock(&(t->lock)));
 }
 
-#ifdef EBUSY
 static inline int hash_table_bucket_locked(struct hash_table *t, unsigned int n)
 {
-    return (pthread_mutex_trylock((t->bucket_locks[n])) == EBUSY);
+    return (pthread_mutex_trylock(&t->bucket_locks[n]) == EBUSY);
 }
 
 static inline int hash_table_locked(struct hash_table *t)
 {
     return (pthread_mutex_trylock(&(t->lock)) == EBUSY);
 }
-#else
-static inline int hash_table_bucket_locked(struct hash_table *t, unsigned int n)
-{
-    return 0;
-}
-
-static inline int hash_table_locked(struct hash_table *t)
-{
-    return 0;
-}
-#endif
 
 static inline int hash_table_hash_code(const struct hash_table *t,
         const void *key, size_t len)

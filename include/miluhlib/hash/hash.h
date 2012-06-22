@@ -67,5 +67,14 @@ static inline unsigned long hash_ptr(const void *ptr, unsigned int bits)
 {
   return hash_long((unsigned long)ptr, bits);
 }
+
+int hash64_cmp(const void * key_a, const void * key_b, size_t size) {
+    if(size != sizeof(uint64_t)){
+        //we've got a problem.
+        return -1;
+     }
+    return (*(uint64_t *)key_a - *(uint64_t *)key_b);
+}
+
 #endif /* _HASH_H */
 

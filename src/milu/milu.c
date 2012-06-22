@@ -8,10 +8,10 @@
 #include <stdio.h>
 #include <execinfo.h> 
 
+#include "milu.h"
 #include "hashtbl/hashtbl.h"
 #include "list/list.h"
 
-#include "milu.h"
 
 /* 
  * NOTE:
@@ -28,7 +28,7 @@ struct memstats stats; //this should be thread-safe.
 static uint8_t milu_enabled = 0; //protect with mutex
 static uint8_t milu_initd = 0;
 
-inline void * _malloc(size_t size)
+static inline void * _malloc(size_t size)
 {
     static malloc_fn_t real_malloc = NULL;
     if(unlikely(!real_malloc))
@@ -39,7 +39,7 @@ inline void * _malloc(size_t size)
     return real_malloc(size);
 }
 
-inline void * _realloc(void * ptr, size_t size)
+static inline void * _realloc(void * ptr, size_t size)
 {
     static realloc_fn_t real_realloc = NULL;
     if(unlikely(!real_realloc))
@@ -50,7 +50,7 @@ inline void * _realloc(void * ptr, size_t size)
     return real_realloc(ptr, size);
 }
 
-inline void * _calloc(size_t nmemb, size_t size)
+static inline void * _calloc(size_t nmemb, size_t size)
 {
     static calloc_fn_t real_calloc = NULL;
     if(unlikely(!real_calloc))
@@ -61,7 +61,7 @@ inline void * _calloc(size_t nmemb, size_t size)
     return real_calloc(nmemb, size);
 }
 
-inline void _free(void * ptr)
+static inline void _free(void * ptr)
 {
     static free_fn_t real_free = NULL;
     if(unlikely(!real_free))
@@ -90,7 +90,7 @@ void record_malloc(size_t size, void* ptr)
 /**
  *  * free() call recorder
  *   */
-void record_free(void* ptr)
+void record_free(size_t size, void* ptr)
 {
     if (unlikely(ptr == 0)) return;
 
@@ -106,14 +106,14 @@ void * malloc(size_t size)
     uintptr_t call = 0;
 
     struct memalloc * mem = NULL;
-    struct hash_entry * entry = NULL;
 
     if(unlikely(!milu_initd))
     {
         //init the hashtable
         milu_initd = 1;
         milu_enabled = 0;
-        hashtable_init();
+        //100 different allocation points... plenty.
+        hash_table_init(_milu_htable, 100, NULL);
         milu_enabled = 1;
     }
 
@@ -154,7 +154,6 @@ void * malloc(size_t size)
         stats.active_reserved += size;
     }
 
-out:
     /* whatever we got to do with the ptr */
     return ptr;
 }
@@ -165,14 +164,13 @@ void * calloc(size_t nmemb, size_t size)
     uintptr_t call = 0;
 
     struct memalloc * mem = NULL;
-    struct hash_entry * entry = NULL;
 
     if(unlikely(!milu_initd))
     {
         //init the hashtable
         milu_initd = 1;
         milu_enabled = 0;
-        hashtable_init();
+        hash_table_init(_milu_htable, 100, NULL);
         milu_enabled = 1;
     }
 
@@ -223,14 +221,13 @@ void * realloc(void * ptr, size_t size)
 
     struct memalloc * mem = NULL, * mem_old = NULL;
     struct hash_entry * entry = NULL;
-    size_t old_size = 0;
 
     if(unlikely(!milu_initd))
     {
         //init the hashtable
         milu_initd = 1;
         milu_enabled = 0;
-        hashtable_init();
+        hash_table_init(_milu_htable, 100, NULL);
         milu_enabled = 1;
     }
 
@@ -269,7 +266,7 @@ void * realloc(void * ptr, size_t size)
 #ifdef _VERBOSE
         if(mem_old)
         {
-            record_free(mem_old->ptr, mem_old->size);
+            record_free( mem_old->size, mem_old->ptr);
         }
         record_malloc(nptr, size);
 #endif
@@ -297,14 +294,14 @@ void free(void * ptr)
 {
     struct hash_entry * entry = NULL;
     struct memalloc * mem = NULL;
-    size_t size = 0;
 
     if(unlikely(!milu_initd))
     {
         //init the hashtable
         milu_initd = 1;
         milu_enabled = 0;
-        hashtable_init();
+
+        hash_table_init(_milu_htable, 100, NULL);
         milu_enabled = 1;
         // we just initialized the hashtable, this will segfault
     }
@@ -328,7 +325,9 @@ void free(void * ptr)
             stats.active_alloc--;
             stats.active_reserved -= mem->size;
 
-            record_free(ptr);
+#ifdef _VERBOSE
+            record_free(mem->size, ptr);
+#endif
         }
 
 
@@ -391,5 +390,5 @@ void milu_cleanup(void)
 void __attribute__ ((destructor)) memchk_stats(void) 
 {
     mem_report();
-    mile_cleanup();
+    milu_cleanup();
 }

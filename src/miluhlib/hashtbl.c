@@ -58,7 +58,8 @@ struct hash_entry *hash_table_lookup_key(const struct hash_table *h,
 	struct hash_entry *tmp;
 	struct list_head *pos;
 
-	list_for_each(pos, &(h->table[hcode].list)) {
+	list_for_each(pos, &(h->table[hcode].list))
+	{
 		tmp = list_entry(pos, struct hash_entry, list);
 
 		if ((tmp->klen == len)

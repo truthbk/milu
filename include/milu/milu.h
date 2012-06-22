@@ -79,14 +79,10 @@ struct pool {
     bt = backtrace_symbols(frames, depth); \
     depth; })
 
-inline void * _malloc(size_t size);
-inline void * _realloc(void * ptr, size_t size);
-inline void * _calloc(size_t nmemb, size_t size);
-inline void _free(void * ptr);
 
 #ifdef _VERBOSE
 void record_malloc(size_t size, void* ptr);
-void record_free(void* ptr);
+void record_free(size_t size, void* ptr);
 #endif
 
 void mem_report(void);
