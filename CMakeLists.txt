@@ -17,8 +17,8 @@ include_directories(${PROJECT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/include/milu/
 	${PROJECT_SOURCE_DIR}/include/miluhlib)
 
-set(CMAKE_C_FLAGS "-ggdb -Wall -W")
-set(CMAKE_CXX_FLAGS "-ggdb -Wall -W")
+set(CMAKE_C_FLAGS "-ggdb -Wall -W -fbuiltin")
+set(CMAKE_CXX_FLAGS "-ggdb -Wall -W -fbuiltin")
 
 # compile as C99
 add_definitions(-std=gnu99)

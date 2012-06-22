@@ -62,14 +62,15 @@ struct pool {
 #endif
 
 /* I think this actually returns uintptr_t, not void *  */
+#ifdef __buitin_extract_return_address
 #define calladdr() \
   (__builtin_extract_return_address( \
       (__builtin_return_address(0)))) 
-
-#if 0
+#else
 #define calladdr() \
-      (__builtin_return_address(0)) 
+      ((uintptr_t)__builtin_return_address(0)) 
 #endif
+
 
 #define _BTRACE_DEPTH 10
 #define get_backtrace(bt) ({ \
