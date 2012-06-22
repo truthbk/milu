@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <execinfo.h> 
+#include <inttypes.h> 
 
 #include "milu.h"
 #include "hashtbl/hashtbl.h"
@@ -348,17 +349,17 @@ void mem_report(void)
     struct hash_entry * entry = NULL;
     struct list_head * lh = NULL;
 
-    fprintf( stdout, "Total Allocations: %lu\n", stats.alloc );
-    fprintf( stdout, "Unfreed Allocations: %lu\n", stats.active_alloc );
-    fprintf( stdout, "Total Memory Reserved: %lu\n", stats.reserved );
-    fprintf( stdout, "Total Unfreed Memory: %lu\n", stats.active_reserved );
+    fprintf( stdout, "Total Allocations:%" PRIu64 "\n", stats.alloc );
+    fprintf( stdout, "Unfreed Allocations:%" PRIu64 "\n", stats.active_alloc );
+    fprintf( stdout, "Total Memory Reserved: %" PRIu64 "\n", stats.reserved );
+    fprintf( stdout, "Total Unfreed Memory: %" PRIu64 "\n", stats.active_reserved );
 
     //Traverse hash table showing existing leaks.
     fprintf( stdout, "\n\nMemory Leaks Found: SUMMARY\n\n" );
     hash_table_for_each_safe( entry, _milu_htable, lh, i ) {
         mem = hash_entry( entry, struct memalloc, hentry );
 
-        fprintf( stdout, "Allocation made at %lu for %ld bytes\n", mem->calladdr, mem->size );
+        fprintf( stdout, "Allocation made at %" PRIu64 " for %ld bytes\n", mem->calladdr, mem->size );
         fprintf( stdout, "Unallocation ptr to heap address: %p\n", mem->ptr );
         for( i=0 ; i<mem->bt_size ; i++)
         {
