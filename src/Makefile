@@ -30,19 +30,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /usr/bin/cmake
+CMAKE_COMMAND = /opt/local/bin/cmake
 
 # The command to remove a file.
-RM = /usr/bin/cmake -E remove -f
+RM = /opt/local/bin/cmake -E remove -f
 
 # The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/bin/ccmake
+CMAKE_EDIT_COMMAND = /opt/local/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/truth/Development/github/milu
+CMAKE_SOURCE_DIR = /Users/Truth/Development/github/milu
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/truth/Development/github/milu
+CMAKE_BINARY_DIR = /Users/Truth/Development/github/milu
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -50,7 +50,7 @@ CMAKE_BINARY_DIR = /home/truth/Development/github/milu
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/opt/local/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -60,7 +60,7 @@ edit_cache/fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/opt/local/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -69,14 +69,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/truth/Development/github/milu && $(CMAKE_COMMAND) -E cmake_progress_start /home/truth/Development/github/milu/CMakeFiles /home/truth/Development/github/milu/src/CMakeFiles/progress.marks
-	cd /home/truth/Development/github/milu && $(MAKE) -f CMakeFiles/Makefile2 src/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/truth/Development/github/milu/CMakeFiles 0
+	cd /Users/Truth/Development/github/milu && $(CMAKE_COMMAND) -E cmake_progress_start /Users/Truth/Development/github/milu/CMakeFiles /Users/Truth/Development/github/milu/src/CMakeFiles/progress.marks
+	cd /Users/Truth/Development/github/milu && $(MAKE) -f CMakeFiles/Makefile2 src/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/Truth/Development/github/milu/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/truth/Development/github/milu && $(MAKE) -f CMakeFiles/Makefile2 src/clean
+	cd /Users/Truth/Development/github/milu && $(MAKE) -f CMakeFiles/Makefile2 src/clean
 .PHONY : clean
 
 # The main clean target
@@ -85,22 +85,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/truth/Development/github/milu && $(MAKE) -f CMakeFiles/Makefile2 src/preinstall
+	cd /Users/Truth/Development/github/milu && $(MAKE) -f CMakeFiles/Makefile2 src/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/truth/Development/github/milu && $(MAKE) -f CMakeFiles/Makefile2 src/preinstall
+	cd /Users/Truth/Development/github/milu && $(MAKE) -f CMakeFiles/Makefile2 src/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/truth/Development/github/milu && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /Users/Truth/Development/github/milu && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 src/CMakeFiles/hmilu.dir/rule:
-	cd /home/truth/Development/github/milu && $(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/hmilu.dir/rule
+	cd /Users/Truth/Development/github/milu && $(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/hmilu.dir/rule
 .PHONY : src/CMakeFiles/hmilu.dir/rule
 
 # Convenience name for target.
@@ -109,12 +109,12 @@ hmilu: src/CMakeFiles/hmilu.dir/rule
 
 # fast build rule for target.
 hmilu/fast:
-	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/build
+	cd /Users/Truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/build
 .PHONY : hmilu/fast
 
 # Convenience name for target.
 src/CMakeFiles/milu.dir/rule:
-	cd /home/truth/Development/github/milu && $(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/milu.dir/rule
+	cd /Users/Truth/Development/github/milu && $(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/milu.dir/rule
 .PHONY : src/CMakeFiles/milu.dir/rule
 
 # Convenience name for target.
@@ -123,7 +123,7 @@ milu: src/CMakeFiles/milu.dir/rule
 
 # fast build rule for target.
 milu/fast:
-	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/milu.dir/build.make src/CMakeFiles/milu.dir/build
+	cd /Users/Truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/milu.dir/build.make src/CMakeFiles/milu.dir/build
 .PHONY : milu/fast
 
 milu/milu.o: milu/milu.c.o
@@ -131,7 +131,7 @@ milu/milu.o: milu/milu.c.o
 
 # target to build an object file
 milu/milu.c.o:
-	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/milu.dir/build.make src/CMakeFiles/milu.dir/milu/milu.c.o
+	cd /Users/Truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/milu.dir/build.make src/CMakeFiles/milu.dir/milu/milu.c.o
 .PHONY : milu/milu.c.o
 
 milu/milu.i: milu/milu.c.i
@@ -139,7 +139,7 @@ milu/milu.i: milu/milu.c.i
 
 # target to preprocess a source file
 milu/milu.c.i:
-	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/milu.dir/build.make src/CMakeFiles/milu.dir/milu/milu.c.i
+	cd /Users/Truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/milu.dir/build.make src/CMakeFiles/milu.dir/milu/milu.c.i
 .PHONY : milu/milu.c.i
 
 milu/milu.s: milu/milu.c.s
@@ -147,7 +147,7 @@ milu/milu.s: milu/milu.c.s
 
 # target to generate assembly for a file
 milu/milu.c.s:
-	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/milu.dir/build.make src/CMakeFiles/milu.dir/milu/milu.c.s
+	cd /Users/Truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/milu.dir/build.make src/CMakeFiles/milu.dir/milu/milu.c.s
 .PHONY : milu/milu.c.s
 
 miluhlib/hashtbl.o: miluhlib/hashtbl.c.o
@@ -155,7 +155,7 @@ miluhlib/hashtbl.o: miluhlib/hashtbl.c.o
 
 # target to build an object file
 miluhlib/hashtbl.c.o:
-	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/miluhlib/hashtbl.c.o
+	cd /Users/Truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/miluhlib/hashtbl.c.o
 .PHONY : miluhlib/hashtbl.c.o
 
 miluhlib/hashtbl.i: miluhlib/hashtbl.c.i
@@ -163,7 +163,7 @@ miluhlib/hashtbl.i: miluhlib/hashtbl.c.i
 
 # target to preprocess a source file
 miluhlib/hashtbl.c.i:
-	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/miluhlib/hashtbl.c.i
+	cd /Users/Truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/miluhlib/hashtbl.c.i
 .PHONY : miluhlib/hashtbl.c.i
 
 miluhlib/hashtbl.s: miluhlib/hashtbl.c.s
@@ -171,7 +171,7 @@ miluhlib/hashtbl.s: miluhlib/hashtbl.c.s
 
 # target to generate assembly for a file
 miluhlib/hashtbl.c.s:
-	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/miluhlib/hashtbl.c.s
+	cd /Users/Truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/miluhlib/hashtbl.c.s
 .PHONY : miluhlib/hashtbl.c.s
 
 # Help Target
@@ -201,6 +201,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/truth/Development/github/milu && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /Users/Truth/Development/github/milu && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

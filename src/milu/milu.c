@@ -359,7 +359,7 @@ void mem_report(void)
     hash_table_for_each_safe( entry, _milu_htable, lh, i ) {
         mem = hash_entry( entry, struct memalloc, hentry );
 
-        fprintf( stdout, "Allocation made at %" PRIu64 " for %ld bytes\n", mem->calladdr, mem->size );
+        fprintf( stdout, "Allocation made at %" PRIuPTR " for %ld bytes\n", mem->calladdr, mem->size );
         fprintf( stdout, "Unallocation ptr to heap address: %p\n", mem->ptr );
         for( i=0 ; i<mem->bt_size ; i++)
         {
