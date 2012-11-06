@@ -1,10 +1,14 @@
 cmake_minimum_required (VERSION 2.6)
-project (milu C)
+project (milu)
 
 # version
 set (milu_VERSION_MAJOR 0)
 set (milu_VERSION_MINOR 1)
 set (milu_VERSION_PATCH 0)
+
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+find_package(CUnit)
 
 # headers for CMake settings
 #configure_file (
