@@ -9,6 +9,9 @@ set (milu_VERSION_PATCH 0)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 find_package(CUnit)
+if(CUNIT_FOUND)
+	enable_testing()
+endif(CUNIT_FOUND)
 
 # headers for CMake settings
 #configure_file (
