@@ -7,3 +7,4 @@
 SET_TARGET_PROPERTIES( hmilu PROPERTIES COMPILE_FLAGS -fPIC )
 
 add_executable(test_hash test_hash.c)
+target_link_libraries(test_hash hmilu)
