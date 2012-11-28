@@ -31,4 +31,6 @@ set(CMAKE_CXX_FLAGS "-ggdb -Wall -W -fbuiltin")
 add_definitions(-std=gnu99)
 
 add_subdirectory(src)
-
+if(CUNIT_FOUND)
+	add_subdirectory(src/tests)
+endif(CUNIT_FOUND)
