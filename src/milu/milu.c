@@ -13,6 +13,7 @@
 #include "hashtbl/hashtbl.h"
 #include "list/list.h"
 
+#define _DEF_HSIZE 100
 
 /* 
  * NOTE:
@@ -74,6 +75,21 @@ static inline void _free(void * ptr)
     return;
 }
 
+static inline int _init_htable(void)
+{
+    if(!_milu_htable)
+    {
+        _milu_htable = (struct hash_table *)_malloc(sizeof(struct hash_table));
+        if(!_milu_htable)
+        {
+            return -1;
+        }
+    }
+
+    hash_table_init(_milu_htable, _DEF_HSIZE, NULL);
+    return 0;
+}
+
 #ifdef _VERBOSE
 /**
  *  * malloc() call recorder
@@ -113,8 +129,11 @@ void * malloc(size_t size)
         //init the hashtable
         milu_initd = 1;
         milu_enabled = 0;
-        //100 different allocation points... plenty.
-        hash_table_init(_milu_htable, 100, NULL);
+        if(_init_htable())
+        {
+            milu_enabled = 0;
+            milu_initd = 0;
+        }
         milu_enabled = 1;
     }
 
@@ -171,7 +190,11 @@ void * calloc(size_t nmemb, size_t size)
         //init the hashtable
         milu_initd = 1;
         milu_enabled = 0;
-        hash_table_init(_milu_htable, 100, NULL);
+        if(_init_htable())
+        {
+            milu_enabled = 0;
+            milu_initd = 0;
+        }
         milu_enabled = 1;
     }
 
@@ -228,7 +251,11 @@ void * realloc(void * ptr, size_t size)
         //init the hashtable
         milu_initd = 1;
         milu_enabled = 0;
-        hash_table_init(_milu_htable, 100, NULL);
+        if(_init_htable())
+        {
+            milu_enabled = 0;
+            milu_initd = 0;
+        }
         milu_enabled = 1;
     }
 
@@ -301,8 +328,11 @@ void free(void * ptr)
         //init the hashtable
         milu_initd = 1;
         milu_enabled = 0;
-
-        hash_table_init(_milu_htable, 100, NULL);
+        if(_init_htable())
+        {
+            milu_enabled = 0;
+            milu_initd = 0;
+        }
         milu_enabled = 1;
         // we just initialized the hashtable, this will segfault
     }
