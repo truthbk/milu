@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <execinfo.h> 
 #include <inttypes.h> 
+#include <pthread.h>
 
 #include "milu.h"
 #include "hashtbl/hashtbl.h"
@@ -27,8 +28,10 @@
  * */
 
 struct memstats stats; //this should be thread-safe.
-static uint8_t milu_enabled = 0; //protect with mutex
-static uint8_t milu_initd = 0;
+static uint8_t milu_enabled = 0; //make atomic 
+static uint8_t milu_initd = 0; //protect with mutex
+
+pthread_mutex_t init_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static inline void * _malloc(size_t size)
 {
@@ -126,15 +129,20 @@ void * malloc(size_t size)
 
     if(unlikely(!milu_initd))
     {
+        pthread_mutex_lock( &init_mutex );
         //init the hashtable
-        milu_initd = 1;
-        milu_enabled = 0;
-        if(_init_htable())
+        if(!milu_initd)
         {
+            milu_initd = 1;
             milu_enabled = 0;
-            milu_initd = 0;
+            if(_init_htable())
+            {
+                milu_enabled = 0;
+                milu_initd = 0;
+            }
+            milu_enabled = 1;
         }
-        milu_enabled = 1;
+        pthread_mutex_unlock( &init_mutex );
     }
 
     ptr = _malloc(size);
@@ -142,7 +150,6 @@ void * malloc(size_t size)
     {
         return NULL;
     }
-
 
     if(likely(milu_enabled))
     {
@@ -187,15 +194,20 @@ void * calloc(size_t nmemb, size_t size)
 
     if(unlikely(!milu_initd))
     {
+        pthread_mutex_lock( &init_mutex );
         //init the hashtable
-        milu_initd = 1;
-        milu_enabled = 0;
-        if(_init_htable())
+        if(!milu_initd)
         {
+            milu_initd = 1;
             milu_enabled = 0;
-            milu_initd = 0;
+            if(_init_htable())
+            {
+                milu_enabled = 0;
+                milu_initd = 0;
+            }
+            milu_enabled = 1;
         }
-        milu_enabled = 1;
+        pthread_mutex_unlock( &init_mutex );
     }
 
 
@@ -248,15 +260,20 @@ void * realloc(void * ptr, size_t size)
 
     if(unlikely(!milu_initd))
     {
+        pthread_mutex_lock( &init_mutex );
         //init the hashtable
-        milu_initd = 1;
-        milu_enabled = 0;
-        if(_init_htable())
+        if(!milu_initd)
         {
+            milu_initd = 1;
             milu_enabled = 0;
-            milu_initd = 0;
+            if(_init_htable())
+            {
+                milu_enabled = 0;
+                milu_initd = 0;
+            }
+            milu_enabled = 1;
         }
-        milu_enabled = 1;
+        pthread_mutex_unlock( &init_mutex );
     }
 
     nptr = _realloc(ptr, size);
@@ -325,16 +342,20 @@ void free(void * ptr)
 
     if(unlikely(!milu_initd))
     {
+        pthread_mutex_lock( &init_mutex );
         //init the hashtable
-        milu_initd = 1;
-        milu_enabled = 0;
-        if(_init_htable())
+        if(!milu_initd)
         {
+            milu_initd = 1;
             milu_enabled = 0;
-            milu_initd = 0;
+            if(_init_htable())
+            {
+                milu_enabled = 0;
+                milu_initd = 0;
+            }
+            milu_enabled = 1;
         }
-        milu_enabled = 1;
-        // we just initialized the hashtable, this will segfault
+        pthread_mutex_unlock( &init_mutex );
     }
 
     if(likely(milu_enabled))
