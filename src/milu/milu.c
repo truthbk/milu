@@ -127,20 +127,21 @@ void * malloc(size_t size)
 
     struct memalloc * mem = NULL;
 
-    if(unlikely(!milu_initd))
+    //we want to avoid locking in the main critical path.
+    if(unlikely(!(__sync_fetch_and_and( &milu_initd, -1 ))))
     {
         pthread_mutex_lock( &init_mutex );
-        //init the hashtable
-        if(!milu_initd)
-        {
-            milu_initd = 1;
-            milu_enabled = 0;
-            if(_init_htable())
-            {
-                milu_enabled = 0;
-                milu_initd = 0;
-            }
-            milu_enabled = 1;
+        __sync_fetch_and_add( &milu_initd, 1 );
+
+        /* init the hashtablie just once.
+         * we don't need to be atomic here cause we're protected
+         * by mutex (?).
+         * */
+        if( !milu_initd && _init_htable()){
+            __sync_fetch_and_and( &milu_initd, 0 );
+        }
+        else {
+            __sync_fetch_and_add( &milu_enabled, 1 );
         }
         pthread_mutex_unlock( &init_mutex );
     }
@@ -192,20 +193,21 @@ void * calloc(size_t nmemb, size_t size)
 
     struct memalloc * mem = NULL;
 
-    if(unlikely(!milu_initd))
+    //we want to avoid locking in the main critical path.
+    if(unlikely(!(__sync_fetch_and_and( &milu_initd, -1 ))))
     {
         pthread_mutex_lock( &init_mutex );
-        //init the hashtable
-        if(!milu_initd)
-        {
-            milu_initd = 1;
-            milu_enabled = 0;
-            if(_init_htable())
-            {
-                milu_enabled = 0;
-                milu_initd = 0;
-            }
-            milu_enabled = 1;
+        __sync_fetch_and_add( &milu_initd, 1 );
+
+        /* init the hashtablie just once.
+         * we don't need to be atomic here cause we're protected
+         * by mutex (?).
+         * */
+        if( !milu_initd && _init_htable()){
+            __sync_fetch_and_and( &milu_initd, 0 );
+        }
+        else {
+            __sync_fetch_and_add( &milu_enabled, 1 );
         }
         pthread_mutex_unlock( &init_mutex );
     }
@@ -258,20 +260,21 @@ void * realloc(void * ptr, size_t size)
     struct memalloc * mem = NULL, * mem_old = NULL;
     struct hash_entry * entry = NULL;
 
-    if(unlikely(!milu_initd))
+    //we want to avoid locking in the main critical path.
+    if(unlikely(!(__sync_fetch_and_and( &milu_initd, -1 ))))
     {
         pthread_mutex_lock( &init_mutex );
-        //init the hashtable
-        if(!milu_initd)
-        {
-            milu_initd = 1;
-            milu_enabled = 0;
-            if(_init_htable())
-            {
-                milu_enabled = 0;
-                milu_initd = 0;
-            }
-            milu_enabled = 1;
+        __sync_fetch_and_add( &milu_initd, 1 );
+
+        /* init the hashtablie just once.
+         * we don't need to be atomic here cause we're protected
+         * by mutex (?).
+         * */
+        if( !milu_initd && _init_htable()){
+            __sync_fetch_and_and( &milu_initd, 0 );
+        }
+        else {
+            __sync_fetch_and_add( &milu_enabled, 1 );
         }
         pthread_mutex_unlock( &init_mutex );
     }
@@ -340,20 +343,21 @@ void free(void * ptr)
     struct hash_entry * entry = NULL;
     struct memalloc * mem = NULL;
 
-    if(unlikely(!milu_initd))
+    //we want to avoid locking in the main critical path.
+    if(unlikely(!(__sync_fetch_and_and( &milu_initd, -1 ))))
     {
         pthread_mutex_lock( &init_mutex );
-        //init the hashtable
-        if(!milu_initd)
-        {
-            milu_initd = 1;
-            milu_enabled = 0;
-            if(_init_htable())
-            {
-                milu_enabled = 0;
-                milu_initd = 0;
-            }
-            milu_enabled = 1;
+        __sync_fetch_and_add( &milu_initd, 1 );
+
+        /* init the hashtablie just once.
+         * we don't need to be atomic here cause we're protected
+         * by mutex (?).
+         * */
+        if( !milu_initd && _init_htable()){
+            __sync_fetch_and_and( &milu_initd, 0 );
+        }
+        else {
+            __sync_fetch_and_add( &milu_enabled, 1 );
         }
         pthread_mutex_unlock( &init_mutex );
     }
