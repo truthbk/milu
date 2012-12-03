@@ -28,8 +28,8 @@
  * */
 
 struct memstats stats; //this should be thread-safe.
-static uint8_t milu_enabled = 0; //make atomic 
-static uint8_t milu_initd = 0; //protect with mutex
+static volatile uint8_t milu_enabled = 0; //make atomic 
+static volatile uint8_t milu_initd = 0; //protect with mutex
 
 pthread_mutex_t init_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -120,6 +120,25 @@ void record_free(size_t size, void* ptr)
 }
 #endif
 
+static inline uint8_t init_milu(void)
+{
+    uint8_t enable = 0;
+    /* init the hashtablie just once.
+     * reads on volatile uint8 are atomic? Assuming so.
+     * We check again on milu_enabled in case another thread
+     * initialized and enabled milu.
+     *
+     * If we fail to init the hashtable, milu remains disabled.
+     * */
+    if( !milu_enabled && _init_htable()){
+        enable = 0;
+    }
+    else {
+        enable = 1;
+    }
+    return enable;
+}
+
 void * malloc(size_t size)
 {
     void * ptr = NULL;
@@ -128,21 +147,10 @@ void * malloc(size_t size)
     struct memalloc * mem = NULL;
 
     //we want to avoid locking in the main critical path.
-    if(unlikely(!(__sync_fetch_and_and( &milu_initd, -1 ))))
+    if(unlikely(!milu_enabled))
     {
         pthread_mutex_lock( &init_mutex );
-        __sync_fetch_and_add( &milu_initd, 1 );
-
-        /* init the hashtablie just once.
-         * we don't need to be atomic here cause we're protected
-         * by mutex (?).
-         * */
-        if( !milu_initd && _init_htable()){
-            __sync_fetch_and_and( &milu_initd, 0 );
-        }
-        else {
-            __sync_fetch_and_add( &milu_enabled, 1 );
-        }
+        milu_enabled = init_milu();
         pthread_mutex_unlock( &init_mutex );
     }
 
@@ -194,21 +202,10 @@ void * calloc(size_t nmemb, size_t size)
     struct memalloc * mem = NULL;
 
     //we want to avoid locking in the main critical path.
-    if(unlikely(!(__sync_fetch_and_and( &milu_initd, -1 ))))
+    if(unlikely(!milu_enabled))
     {
         pthread_mutex_lock( &init_mutex );
-        __sync_fetch_and_add( &milu_initd, 1 );
-
-        /* init the hashtablie just once.
-         * we don't need to be atomic here cause we're protected
-         * by mutex (?).
-         * */
-        if( !milu_initd && _init_htable()){
-            __sync_fetch_and_and( &milu_initd, 0 );
-        }
-        else {
-            __sync_fetch_and_add( &milu_enabled, 1 );
-        }
+        milu_enabled = init_milu();
         pthread_mutex_unlock( &init_mutex );
     }
 
@@ -261,21 +258,10 @@ void * realloc(void * ptr, size_t size)
     struct hash_entry * entry = NULL;
 
     //we want to avoid locking in the main critical path.
-    if(unlikely(!(__sync_fetch_and_and( &milu_initd, -1 ))))
+    if(unlikely(!milu_enabled))
     {
         pthread_mutex_lock( &init_mutex );
-        __sync_fetch_and_add( &milu_initd, 1 );
-
-        /* init the hashtablie just once.
-         * we don't need to be atomic here cause we're protected
-         * by mutex (?).
-         * */
-        if( !milu_initd && _init_htable()){
-            __sync_fetch_and_and( &milu_initd, 0 );
-        }
-        else {
-            __sync_fetch_and_add( &milu_enabled, 1 );
-        }
+        milu_enabled = init_milu();
         pthread_mutex_unlock( &init_mutex );
     }
 
@@ -344,23 +330,13 @@ void free(void * ptr)
     struct memalloc * mem = NULL;
 
     //we want to avoid locking in the main critical path.
-    if(unlikely(!(__sync_fetch_and_and( &milu_initd, -1 ))))
+    if(unlikely(!milu_enabled))
     {
         pthread_mutex_lock( &init_mutex );
-        __sync_fetch_and_add( &milu_initd, 1 );
-
-        /* init the hashtablie just once.
-         * we don't need to be atomic here cause we're protected
-         * by mutex (?).
-         * */
-        if( !milu_initd && _init_htable()){
-            __sync_fetch_and_and( &milu_initd, 0 );
-        }
-        else {
-            __sync_fetch_and_add( &milu_enabled, 1 );
-        }
+        milu_enabled = init_milu();
         pthread_mutex_unlock( &init_mutex );
     }
+
 
     if(likely(milu_enabled))
     {
