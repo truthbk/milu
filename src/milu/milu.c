@@ -28,8 +28,7 @@
  * */
 
 struct memstats stats; //this should be thread-safe.
-static volatile uint8_t milu_enabled = 0; //make atomic 
-static volatile uint8_t milu_initd = 0; //protect with mutex
+static volatile uint8_t milu_enabled = 0; //handle with care. 
 
 pthread_mutex_t init_mutex = PTHREAD_MUTEX_INITIALIZER;
 
