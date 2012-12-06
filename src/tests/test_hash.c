@@ -5,10 +5,14 @@
 
 #include "milu.h"
 #include "hashtbl/hashtbl.h"
+#include "hash/hash.h"
 #include "list/list.h"
 
 /* dirty hack to get some addresses  */
 #define ADDRESS_HERE() ({ void *p; __asm__("1: mov 1b, %0" : "=r" (p)); p; })
+
+
+static void * last_ptr = NULL;
 
 
 /* The suite initialization function.
@@ -41,7 +45,8 @@ int clean_suite1(void)
 
 void testHASHCREATE(void)
 {
-    hash_table_init(_milu_htable, 100, NULL);
+    CU_ASSERT(0 == hash_table_init(
+                _milu_htable, 100, hash64_cmp, milu_hash_ptr ));
 }
 
 void testHASHINSERT(void)
@@ -49,9 +54,8 @@ void testHASHINSERT(void)
     void * ptr = NULL;
     struct memalloc * mem = NULL;
 
-    if (!(mem = (struct memalloc *)malloc(sizeof(struct memalloc)))) {
+    if ( (mem = (struct memalloc *)malloc(sizeof(struct memalloc))) ) {
         hash_entry_init(&mem->hentry, ptr, sizeof(ptr));
-        hash_table_insert_safe( _milu_htable, &mem->hentry, ptr, sizeof(ptr) );
 
         mem->size = 0; 
         mem->bt_size = 0;
@@ -60,12 +64,26 @@ void testHASHINSERT(void)
         mem->ptr = ptr; //points to itself.
         mem->calladdr = (uintptr_t) ADDRESS_HERE(); //this is just a mock address, cuz we don't have a caller
 
-
-        //CU_ASSERT(9 == fread(buffer, sizeof(unsigned char), 20, temp_file));
-        //CU_ASSERT(0 == strncmp(buffer, "Q\ni1 = 10", 9));
+        hash_table_insert_safe( _milu_htable, &mem->hentry, ptr, sizeof(ptr) );
+        last_ptr = ptr;
     }
 }
 
+/*
+ * must be called after testHASHINSERT
+ * order matters.
+ * */
+void testHASHGET(void)
+{
+    struct hash_entry * entry = NULL;
+    struct memalloc * mem = NULL;
+
+    entry = hash_table_lookup_key_safe( _milu_htable, last_ptr, sizeof(void *) );
+    CU_ASSERT(0 != entry);
+
+    mem = hash_entry( entry, struct memalloc, hentry );
+    CU_ASSERT((mem->ptr == last_ptr));
+}
 void testHASHREMOVE(void)
 {
 }
@@ -120,6 +138,7 @@ int main()
     /* NOTE - ORDER IS IMPORTANT - MUST TEST fread() AFTER fprintf() */
     if ((NULL == CU_add_test(pSuite, "test hashtable creation", testHASHCREATE)) ||
         (NULL == CU_add_test(pSuite, "test hashtable insertion", testHASHINSERT)) ||
+        (NULL == CU_add_test(pSuite, "test hashtable retrieval", testHASHGET)) ||
 #if 0
         (NULL == CU_add_test(pSuite, "test hashtable entry removal", testHASHREMOVE)) ||
         (NULL == CU_add_test(pSuite, "test hashtable expansion", testHASHEXPAND)) ||

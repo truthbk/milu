@@ -2,6 +2,7 @@
 #define _MILU_H
 
 #include "hashtbl/hashtbl.h"
+#include "hash/hash.h"
 
 #ifndef likely
 #define likely(x) __builtin_expect((x), 1)
@@ -80,6 +81,15 @@ struct pool {
     bt = backtrace_symbols(frames, depth); \
     depth; })
 
+#define KEY_HASHBITS 8
+/*
+ * @ptr : void ptr we wish to hash
+ * @len : this parameter is ignored, we need to comply with prototype.
+ * */
+static unsigned long milu_hash_ptr(const void *ptr, size_t len)
+{
+    return hash_ptr(ptr, KEY_HASHBITS);
+}
 
 #ifdef _VERBOSE
 void record_malloc(size_t size, void* ptr);

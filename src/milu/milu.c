@@ -88,7 +88,8 @@ static inline int _init_htable(void)
         }
     }
 
-    hash_table_init(_milu_htable, _DEF_HSIZE, NULL);
+    hash_table_init(
+            _milu_htable, _DEF_HSIZE, hash64_cmp, milu_hash_ptr );
     return 0;
 }
 

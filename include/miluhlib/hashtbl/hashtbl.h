@@ -53,12 +53,14 @@ struct hash_table {
     /* private variables */
     unsigned int __ht_i;
     struct list_head *pos;
+
 };
 
 
 /**
  * This is a particular hashtable implementation, we will be
  * hashing pointers for keys, or similarly, int's (uint64, uint32).
+ * But we'll try to retain string key compatibility.
  *
  * We are based on the kernel-type lists.
  *
@@ -97,7 +99,6 @@ static inline int hash_table_locked(struct hash_table *t)
 static inline int hash_table_hash_code(const struct hash_table *t,
         const void *key, size_t len)
 {
-
     return (t->my_hash_fn(key, len) % t->buckets);
 }
 
@@ -136,8 +137,10 @@ static inline void hash_entry_finit(struct hash_entry *e)
     e->klen = 0;
 }
 
-static inline int hash_table_init(struct hash_table *h, unsigned int b,
-        keycmp_ptr keycmp)
+static inline int hash_table_init(struct hash_table *h
+        , unsigned int b
+        , keycmp_ptr keycmp
+        , __hash hash_fn) 
 {
     unsigned int i = 0;
     size_t hashtblsz = 0;
@@ -182,7 +185,12 @@ static inline int hash_table_init(struct hash_table *h, unsigned int b,
     if (keycmp)
         h->keycmp = keycmp;
     else
-        h->keycmp = &memcmp;
+        h->keycmp = memcmp;
+
+    if (hash_fn)
+        h->my_hash_fn = hash_fn;
+    else
+        return -1;
 
     return 0;
 }
@@ -239,7 +247,6 @@ struct hash_entry *hash_table_lookup_key(const struct hash_table *h,
  * Returns: returns a pointer to the hash_entry that matches the key. otherise returns NULL.
  * Notes: in the presence of duplicate keys the function returns the first hash_entry found.
  *                function is not safe from delections. 
- *                function is not thread safe. 
  */
 struct hash_entry *hash_table_lookup_key_safe(struct hash_table *h,
         const void *key,
@@ -302,7 +309,7 @@ static inline struct hash_entry *hash_table_del_hash_entry_safe(struct
  * @htable: &struct hash_table
  */
 #define hash_table_for_each(hentry, htable)     \
-    for     ((htable)->__ht_i=0; ((htable)->__ht_i < (htable)->buckets); ++((htable)->__ht_i))      \
+    for ((htable)->__ht_i=0; ((htable)->__ht_i < (htable)->buckets); ++((htable)->__ht_i))      \
 for(((htable)->pos= (htable)->table[(htable)->__ht_i].list.next);               \
         ((htable)->pos != &((htable)->table[(htable)->__ht_i].list)) && \
         ((hentry) = ((struct hash_entry *)((char *)((htable)->pos)-(unsigned long)(&((struct hash_entry *)0)->list))) );        \
@@ -315,7 +322,7 @@ for(((htable)->pos= (htable)->table[(htable)->__ht_i].list.next);               
  * @hti: unsigned int
  */
 #define hash_table_for_each_safe(hentry, htable, pos, hti)      \
-    for     ((hti)=0; ((hti) < (htable)->buckets); ++(hti)) \
+    for ((hti)=0; ((hti) < (htable)->buckets); ++(hti)) \
 for(((pos)= (htable)->table[(hti)].list.next);          \
         ((pos) != &((htable)->table[(hti)].list)) &&    \
         ((hentry) = ((struct hash_entry *)((char *)((pos))-(unsigned long)(&((struct hash_entry *)0)->list))) );        \

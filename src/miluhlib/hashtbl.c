@@ -77,7 +77,6 @@ struct hash_entry *hash_table_lookup_key(const struct hash_table *h,
  * Returns: returns a pointer to the hash_entry that matches the key. otherise returns NULL.
  * Notes: in the presence of duplicate keys the function returns the first hash_entry found.
  * 		  function is not safe from delections. 
- * 		  function is not thread safe. 
  */
 struct hash_entry *hash_table_lookup_key_safe(struct hash_table *h,
 					      const void *key,
