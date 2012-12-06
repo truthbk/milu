@@ -12,6 +12,18 @@
 #define unlikely(x) __builtin_expect((x), 0)
 #endif
 
+#ifdef __GNUC__
+#  define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
+#else
+#  define UNUSED(x) UNUSED_ ## x
+#endif
+
+#ifdef __GNUC__
+#  define UNUSED_FUNCTION(x) __attribute__((__unused__)) UNUSED_ ## x
+#else
+#  define UNUSED_FUNCTION(x) UNUSED_ ## x
+#endif
+
 //must be init'd
 struct hash_table * _milu_htable = NULL;
 
@@ -86,7 +98,7 @@ struct pool {
  * @ptr : void ptr we wish to hash
  * @len : this parameter is ignored, we need to comply with prototype.
  * */
-static unsigned long milu_hash_ptr(const void *ptr, size_t len)
+static unsigned long milu_hash_ptr(const void *ptr, size_t UNUSED(len))
 {
     return hash_ptr(ptr, KEY_HASHBITS);
 }
