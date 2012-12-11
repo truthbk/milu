@@ -52,6 +52,10 @@ struct hash_table {
 
     /* private variables */
     unsigned int __ht_i;
+#define RSZ_FACTOR 0.6667f
+    float _factor;
+    size_t _resize_threshold;
+    size_t _used_buckets;
     struct list_head *pos;
 
 };
@@ -164,6 +168,9 @@ static inline int hash_table_init(struct hash_table *h
     }
 
     h->buckets = hashtblsz;
+    h->_used_buckets = 0;
+    h->_factor = RSZ_FACTOR; //hard coded for now.
+    h->_resize_threshold = h->factor * h->buckets;
 
     if ((h->table =
                 (struct hash_entry *)malloc(sizeof(struct hash_entry) * h->buckets)) ==

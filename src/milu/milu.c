@@ -14,7 +14,7 @@
 #include "hashtbl/hashtbl.h"
 #include "list/list.h"
 
-#define _DEF_HSIZE 100
+#define _DEF_HSIZE 100000
 
 /* 
  * NOTE:

@@ -2,6 +2,11 @@
 
 #include "hashtbl/hashtbl.h"
 
+void hash_table_resize(struct hash_table *h)
+{
+    //TODO
+    return;
+}
 
 /* insert_hash_table()
  * @h: &struct hash_table hash table to insert hash_entry into
@@ -36,6 +41,10 @@ void hash_table_insert_safe(struct hash_table *h,
 	n = hash_table_hash_code_safe(h, key, len);
 
 	hash_table_bucket_lock(h, n);
+        if(h->_used_bucket >= h->_resize_threshold)
+            hash_table_resize(h);
+        if(list_empty(h->table[n].list))
+                h->_used_buckets++;
 	list_add(&(e->list), &(h->table[n].list));
 	hash_table_bucket_unlock(h, n);
 }
