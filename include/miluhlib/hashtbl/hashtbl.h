@@ -8,6 +8,8 @@
 #include <pthread.h>
 #include <errno.h>
 
+#include <math.h>
+
 #include "list/list.h"
 
 typedef size_t (* __hash)(const void *, size_t len);
@@ -30,9 +32,6 @@ static const uint64_t hashtbl_prime_sz[N_HASH_PRIMES] = {
     3145739, 6291469, 12582917, 25165843, 50331653, 100663319, 201326611, 402653189, 805306457, 1610612741
 };
 
-#ifndef _LOAD_FACTOR
-#define _LOAD_FACTOR 0.75f /* Default load factor for hashtable is 3/4  */
-#endif
 
 struct hash_entry {
     void * key;
@@ -52,7 +51,9 @@ struct hash_table {
 
     /* private variables */
     unsigned int __ht_i;
-#define RSZ_FACTOR 0.6667f
+#ifndef _LOAD_FACTOR
+#define _LOAD_FACTOR 0.75f /* Default load factor for hashtable is 3/4  */
+#endif
     float _factor;
     size_t _resize_threshold;
     size_t _used_buckets;
@@ -153,7 +154,7 @@ static inline int hash_table_init(struct hash_table *h
 
 
     /* Lets decide the REAL hash table size  */
-    hashtblsz = b / _LOAD_FACTOR;
+    hashtblsz = (size_t) roundf((float)b/_LOAD_FACTOR);
     if(hashtblsz <= hashtbl_prime_sz[N_HASH_PRIMES-1])
     {
         for( i=0 ; i<N_HASH_PRIMES ; i++ )
@@ -169,8 +170,8 @@ static inline int hash_table_init(struct hash_table *h
 
     h->buckets = hashtblsz;
     h->_used_buckets = 0;
-    h->_factor = RSZ_FACTOR; //hard coded for now.
-    h->_resize_threshold = h->factor * h->buckets;
+    h->_factor = _LOAD_FACTOR; //hard coded for now.
+    h->_resize_threshold = b;
 
     if ((h->table =
                 (struct hash_entry *)malloc(sizeof(struct hash_entry) * h->buckets)) ==
