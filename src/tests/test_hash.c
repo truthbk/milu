@@ -46,7 +46,7 @@ int clean_suite1(void)
 void testHASHCREATE(void)
 {
     CU_ASSERT(0 == hash_table_init(
-                _milu_htable, 100, hash64_cmp, milu_hash_ptr ));
+                _milu_htable, 40, hash64_cmp, milu_hash_ptr ));
 }
 
 void testHASHINSERT(void)
@@ -90,6 +90,30 @@ void testHASHREMOVE(void)
 
 void testHASHEXPAND(void)
 {
+    uint32_t i = 0;
+    void * ptr = NULL;
+    struct memalloc * mem = NULL;
+    uintptr_t addr = (uintptr_t) ADDRESS_HERE();
+    size_t old_hsize = _milu_htable->buckets;
+
+    for( i = 0 ; i < old_hsize ; i++ )
+    {
+        if ( (mem = (struct memalloc *)malloc(sizeof(struct memalloc))) ) 
+        {
+            hash_entry_init(&mem->hentry, ptr, sizeof(ptr));
+
+            mem->size = 0; 
+            mem->bt_size = 0;
+
+            ptr = mem;
+            mem->ptr = ptr; //points to itself.
+            mem->calladdr = addr; //this is just a mock address.
+
+            hash_table_insert_safe( _milu_htable, &mem->hentry, ptr, sizeof(ptr) );
+            last_ptr = ptr;
+        }
+    }
+    CU_ASSERT((_milu_htable->buckets == old_hsize));
 }
 
 void testHASHCOLLIDE(void)
@@ -139,9 +163,9 @@ int main()
     if ((NULL == CU_add_test(pSuite, "test hashtable creation", testHASHCREATE)) ||
         (NULL == CU_add_test(pSuite, "test hashtable insertion", testHASHINSERT)) ||
         (NULL == CU_add_test(pSuite, "test hashtable retrieval", testHASHGET)) ||
+        (NULL == CU_add_test(pSuite, "test hashtable expansion", testHASHEXPAND)) ||
 #if 0
         (NULL == CU_add_test(pSuite, "test hashtable entry removal", testHASHREMOVE)) ||
-        (NULL == CU_add_test(pSuite, "test hashtable expansion", testHASHEXPAND)) ||
         (NULL == CU_add_test(pSuite, "test handling of collisions", testHASHCOLLIDE)) ||
 #endif
         (NULL == CU_add_test(pSuite, "test hashtable destruction", testHASHDESTROY)))
