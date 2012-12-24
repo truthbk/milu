@@ -24,11 +24,17 @@ include_directories(${PROJECT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/include/milu/
 	${PROJECT_SOURCE_DIR}/include/miluhlib)
 
-set(CMAKE_C_FLAGS "-ggdb -Wall -W -fbuiltin")
-set(CMAKE_CXX_FLAGS "-ggdb -Wall -W -fbuiltin")
+set(CMAKE_C_FLAGS "-Wall -W -fbuiltin")
+set(CMAKE_CXX_FLAGS "-Wall -W -fbuiltin")
+
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE} -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE} -O3")
+
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_DEBUG} -gdwarf-2 -g3")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} -gdwarf-2 -g3")
 
 # compile as C99
-add_definitions(-std=gnu99)
+add_definitions(-std=gnu99 -D_PTR_HASHTBL)
 
 add_subdirectory(src)
 if(CUNIT_FOUND)

@@ -379,6 +379,7 @@ void mem_report(void)
     struct memalloc * mem = NULL;
     struct hash_entry * entry = NULL;
     struct list_head * lh = NULL;
+    struct list_head * laux = NULL;
 
     fprintf( stdout, "Total Allocations:%" PRIu64 "\n", stats.alloc );
     fprintf( stdout, "Unfreed Allocations:%" PRIu64 "\n", stats.active_alloc );
@@ -387,7 +388,7 @@ void mem_report(void)
 
     //Traverse hash table showing existing leaks.
     fprintf( stdout, "\n\nMemory Leaks Found: SUMMARY\n\n" );
-    hash_table_for_each_safe( entry, _milu_htable, lh, i ) {
+    hash_table_for_each_safe( entry, _milu_htable, lh, laux, i ) {
         mem = hash_entry( entry, struct memalloc, hentry );
 
         fprintf( stdout, "Allocation made at %" PRIuPTR " for %ld bytes\n", mem->calladdr, mem->size );
@@ -408,10 +409,11 @@ void milu_cleanup(void)
     struct memalloc * mem = NULL;
     struct hash_entry * entry = NULL;
     struct list_head  * lh = NULL;
+    struct list_head  * laux = NULL;
 
 
     //clean this mess up ;)
-    hash_table_for_each_safe( entry, _milu_htable, lh, i ) {
+    hash_table_for_each_safe( entry, _milu_htable, lh, laux, i ) {
         mem = hash_entry( entry, struct memalloc, hentry );
         hash_table_del_hash_entry( _milu_htable, entry );
         _free(mem->bt);

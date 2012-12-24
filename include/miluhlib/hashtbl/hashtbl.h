@@ -54,6 +54,7 @@ struct hash_table {
 #ifndef _LOAD_FACTOR
 #define _LOAD_FACTOR 0.75f /* Default load factor for hashtable is 3/4  */
 #endif
+
     float _factor;
     size_t _resize_threshold;
     size_t _used_buckets;
@@ -125,13 +126,19 @@ static inline int hash_entry_init(struct hash_entry *e,
 
     INIT_LIST_HEAD(&(e->list));
 
-
+#ifdef _PTR_HASHTBL
+    if (len > sizeof(void *))
+        return -1;
+    e->key = (void *)key;
+    e->klen = len;
+#else
     if (key) {
         if ((e->key = (unsigned char *)malloc(len)) == NULL)
             return -1;
         memcpy(e->key, key, len);
         e->klen = len;
     }
+#endif
     return 0;
 }
 
@@ -145,7 +152,7 @@ static inline void hash_entry_finit(struct hash_entry *e)
 static inline int hash_table_init(struct hash_table *h
         , unsigned int b
         , keycmp_ptr keycmp
-        , __hash hash_fn) 
+        , __hash hash_fn )
 {
     unsigned int i = 0;
     size_t hashtblsz = 0;
@@ -318,23 +325,33 @@ static inline struct hash_entry *hash_table_del_hash_entry_safe(struct
  */
 #define hash_table_for_each(hentry, htable)     \
     for ((htable)->__ht_i=0; ((htable)->__ht_i < (htable)->buckets); ++((htable)->__ht_i))      \
-for(((htable)->pos= (htable)->table[(htable)->__ht_i].list.next);               \
-        ((htable)->pos != &((htable)->table[(htable)->__ht_i].list)) && \
-        ((hentry) = ((struct hash_entry *)((char *)((htable)->pos)-(unsigned long)(&((struct hash_entry *)0)->list))) );        \
-        (htable)->pos= (htable)->pos->next)
+        for(((htable)->pos= (htable)->table[(htable)->__ht_i].list.next);               \
+                ((htable)->pos != &((htable)->table[(htable)->__ht_i].list)) && \
+                ((hentry) = ((struct hash_entry *)((char *)((htable)->pos)-(unsigned long)(&((struct hash_entry *)0)->list))) );        \
+                (htable)->pos= (htable)->pos->next)
 
 /*
  * @hentry: &struct hash_entry
  * @htable: &struct hash_table
- * @pos: &struct list_head
+ * @pos: &struct list_head : iterator struct
+ * @pos: &struct list_head : auxiliary struct
  * @hti: unsigned int
  */
-#define hash_table_for_each_safe(hentry, htable, pos, hti)      \
+#if 0
+#define hash_table_for_each_safe(hentry, htable, pos, n, hti)      \
+    for ( hti=0; (hti < (htable)->buckets); ++hti ) \
+                for( pos=(htable)->table[hti].list.next, n=pos->next; \
+                        pos != &(htable)->table[hti].list &&    \
+                        (hentry) = ((struct hash_entry *)((char *)(pos)- \
+                                (unsigned long)(&((struct hash_entry *)0)->list))) ; \
+                        pos = n, n=pos->next)
+#endif
+#define hash_table_for_each_safe(hentry, htable, pos, n, hti)      \
     for ((hti)=0; ((hti) < (htable)->buckets); ++(hti)) \
-for(((pos)= (htable)->table[(hti)].list.next);          \
-        ((pos) != &((htable)->table[(hti)].list)) &&    \
-        ((hentry) = ((struct hash_entry *)((char *)((pos))-(unsigned long)(&((struct hash_entry *)0)->list))) );        \
-        (pos)= (pos)->next)
+                for(((pos)= (htable)->table[(hti)].list.next), n =(pos)->next;          \
+                        ((pos) != &((htable)->table[(hti)].list)) &&    \
+                        ((hentry) = ((struct hash_entry *)((char *)((pos))-(unsigned long)(&((struct hash_entry *)0)->list))) ) ; \
+                        pos = n, n = pos->next)
 
 
 #endif

@@ -55,7 +55,6 @@ void testHASHINSERT(void)
     struct memalloc * mem = NULL;
 
     if ( (mem = (struct memalloc *)malloc(sizeof(struct memalloc))) ) {
-        hash_entry_init(&mem->hentry, ptr, sizeof(ptr));
 
         mem->size = 0; 
         mem->bt_size = 0;
@@ -100,20 +99,17 @@ void testHASHEXPAND(void)
     {
         if ( (mem = (struct memalloc *)malloc(sizeof(struct memalloc))) ) 
         {
-            hash_entry_init(&mem->hentry, ptr, sizeof(ptr));
-
             mem->size = 0; 
             mem->bt_size = 0;
 
-            ptr = mem;
+            ptr = (void *)mem;
             mem->ptr = ptr; //points to itself.
             mem->calladdr = addr; //this is just a mock address.
 
-            hash_table_insert_safe( _milu_htable, &mem->hentry, ptr, sizeof(ptr) );
-            last_ptr = ptr;
+            hash_table_insert_safe( _milu_htable, &mem->hentry, ptr, sizeof(void *) );
         }
     }
-    CU_ASSERT((_milu_htable->buckets == old_hsize));
+    CU_ASSERT((_milu_htable->buckets > old_hsize));
 }
 
 void testHASHCOLLIDE(void)
@@ -126,13 +122,14 @@ void testHASHDESTROY(void)
     struct memalloc * mem = NULL;
     struct hash_entry * entry = NULL;
     struct list_head  * lh = NULL;
+    struct list_head  * laux = NULL;
 
 
     //clean this mess up ;)
-    hash_table_for_each_safe( entry, _milu_htable, lh, i ) {
+    hash_table_for_each_safe( entry, _milu_htable, lh, laux, i ) {
         mem = hash_entry( entry, struct memalloc, hentry );
         hash_table_del_hash_entry( _milu_htable, entry );
-        free(mem->bt);
+        //free(mem->bt);
         free(mem);
     }
 

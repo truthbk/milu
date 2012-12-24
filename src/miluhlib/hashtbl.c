@@ -5,10 +5,13 @@
 int hash_table_resize(struct hash_table *h)
 {
     int ret;
-    unsigned int hi, i;
+    unsigned int i;
+    //need these to iterate hashtable
     struct hash_table aux_htbl;
-    struct hash_entry * aux_hentry;
-    struct list_head * aux_pos;
+    struct hash_entry * hentry, * hentry_aux;
+    struct list_head  * lh = NULL;
+    struct list_head  * laux = NULL;
+    unsigned int hti;
 
     //TODO
     
@@ -24,12 +27,17 @@ int hash_table_resize(struct hash_table *h)
         return ret;
     }
 
-    hash_table_for_each_safe( aux_hentry, h, aux_pos, hi)
+    hash_table_for_each_safe( hentry, h, lh, laux, hti )
     {
-        hash_table_insert( &aux_htbl, 
-                aux_hentry, 
-                aux_hentry->key, 
-                aux_hentry->klen);
+        hentry_aux = hash_table_del_hash_entry_safe( h, hentry );
+
+        if(hentry_aux)
+        {
+            hash_table_insert( &aux_htbl, 
+                    hentry_aux, 
+                    hentry_aux->key, 
+                    hentry_aux->klen);
+        }
     }
 
     //we've reused hentries so no need to free those!
@@ -109,7 +117,7 @@ void hash_table_insert_safe(struct hash_table *h,
 
 /* hash_table_lookup_key()
  * @h: hash table to look into
- * @str: the key to look for
+ * @key: the key to look for
  * @len: length of the key
  * Description: looks up the hash table for the presence of key. 
  * Returns: returns a pointer to the hash_entry that matches the key. otherise returns NULL.
