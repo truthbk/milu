@@ -34,7 +34,7 @@ set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_DEBUG} -gdwarf-2 -g3")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} -gdwarf-2 -g3")
 
 # compile as C99
-add_definitions(-std=gnu99 -D_PTR_HASHTBL)
+add_definitions(-std=gnu99)
 
 add_subdirectory(src)
 if(CUNIT_FOUND)
