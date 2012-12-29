@@ -177,8 +177,8 @@ void * malloc(size_t size)
         //Not for precise accounting (Don't want to use up too many resources for accounting).
         mem->size = size; 
         mem->bt_size = get_backtrace(mem->bt);
-        hash_entry_init(&mem->hentry, ptr, sizeof(ptr));
-        hash_table_insert_safe( _milu_htable, &mem->hentry, ptr, sizeof(ptr) );
+        hash_table_insert_safe_i( _milu_htable, &mem->hentry, 
+                (const uintptr_t)ptr, sizeof(uintptr_t) );
 
 #ifdef _VERBOSE
         record_malloc(ptr, size);
@@ -233,8 +233,8 @@ void * calloc(size_t nmemb, size_t size)
         //Not for precise accounting (Don't want to use up too many resources for accounting).
         mem->size = size*nmemb; 
         mem->bt_size = get_backtrace(mem->bt);
-        hash_entry_init(&mem->hentry, ptr, sizeof(ptr));
-        hash_table_insert_safe( _milu_htable, &mem->hentry, ptr, sizeof(ptr) );
+        hash_table_insert_safe_i( _milu_htable, &mem->hentry, 
+                (const uintptr_t)ptr, sizeof(uintptr_t) );
 
 #ifdef _VERBOSE
         record_malloc(ptr, size*nmemb);
@@ -277,7 +277,8 @@ void * realloc(void * ptr, size_t size)
         call = calladdr();
 
         //look for the entry...
-        entry = hash_table_del_key_safe( _milu_htable, ptr, sizeof(ptr) );
+        entry = hash_table_del_key_safe_i( _milu_htable, 
+                (const uintptr_t)ptr, sizeof(uintptr_t) );
         if( likely(!!entry) )
         {
             mem_old = hash_entry(entry, struct memalloc, hentry);
@@ -294,8 +295,8 @@ void * realloc(void * ptr, size_t size)
         mem->calladdr = call;
         mem->size = size; 
         mem->bt_size = get_backtrace(mem->bt);
-        hash_entry_init(&mem->hentry, nptr, sizeof(ptr));
-        hash_table_insert_safe( _milu_htable, &mem->hentry, nptr, sizeof(nptr) );
+        hash_table_insert_safe_i( _milu_htable, &mem->hentry,
+                (const uintptr_t)nptr, sizeof(uintptr_t) );
 
 #ifdef _VERBOSE
         if(mem_old)
@@ -344,7 +345,8 @@ void free(void * ptr)
         //unallocated memory frees we first look for the ptr in the hashtable..
 
         //look for the entry...
-        entry = hash_table_del_key_safe( _milu_htable, ptr, sizeof(ptr) );
+        entry = hash_table_del_key_safe_i( _milu_htable, 
+                (const uintptr_t)ptr, sizeof(uintptr_t) );
         if( unlikely(!entry) )
         {
             mem_report();

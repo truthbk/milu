@@ -37,6 +37,7 @@ struct hash_entry {
     void * key;
     size_t klen;
     struct list_head list; //collision resolved by chaining
+    char _skey; //impacts mem usage, but unavoidable for str+int hashtables.
 };
 
 struct hash_table {
@@ -121,30 +122,38 @@ static inline int hash_table_hash_code_safe(struct hash_table *t,
 }
 
 static inline int hash_entry_init(struct hash_entry *e,
-        const void *key, size_t len)
+        const void *key, size_t len, char skey)
 {
 
     INIT_LIST_HEAD(&(e->list));
+    e->_skey = !!skey;
 
-#ifdef _PTR_HASHTBL
-    if (len > sizeof(void *))
-        return -1;
-    e->key = (void *)key;
-    e->klen = len;
-#else
-    if (key) {
-        if ((e->key = (unsigned char *)malloc(len)) == NULL)
+    if(e->_skey) {
+        if (!key)
+        {
             return -1;
+        }
+        else if((e->key = (unsigned char *)malloc(len)) == NULL)
+        {
+                return -1;
+        }
         memcpy(e->key, key, len);
         e->klen = len;
+    } else { 
+        //Nasty trick to use same prototype for str+int,ptrs
+
+        if (len > sizeof(void *)) 
+            return -1;
+        e->key = (void *)key;
+        e->klen = len;
     }
-#endif
+
     return 0;
 }
 
 static inline void hash_entry_finit(struct hash_entry *e)
 {
-    if (e->key)
+    if (e->key && e->_skey)
         free(e->key);
     e->klen = 0;
 }
@@ -190,11 +199,11 @@ static inline int hash_table_init(struct hash_table *h
         return -1;
 
     for ( i=h->buckets-1 ; i != 0; i--) {
-        hash_entry_init(&(h->table[i]), NULL, 0);
+        hash_entry_init(&(h->table[i]), NULL, 0, 0);
         pthread_mutex_init(&h->bucket_locks[i], NULL);
     }
 
-    hash_entry_init(&(h->table[0]), NULL, 0);
+    hash_entry_init(&(h->table[0]), NULL, 0, 0);
     pthread_mutex_init(&h->bucket_locks[0], NULL);
 
     if (keycmp)
@@ -218,14 +227,23 @@ static inline void hash_table_finit(struct hash_table *h)
     h->buckets = 0;
 }
 
-/* insert_hash_table()
+/* insert_hash_table_i()
  * @h: &struct hash_table hash table to insert hash_entry into
  * @e: &struct hash_entry
  * Description: inserts @e into @h using @e->key as key. not thread-safe.
  */
-void hash_table_insert(struct hash_table *h,
-        struct hash_entry *e,
-        const void *key, size_t len);
+void hash_table_insert_i(struct hash_table *h,
+                         struct hash_entry *e,
+                         const uintptr_t key, size_t len);
+
+/* insert_hash_table_s()
+ * @h: &struct hash_table hash table to insert hash_entry into
+ * @e: &struct hash_entry
+ * Description: inserts @e into @h using @e->key as key. not thread-safe.
+ */
+void hash_table_insert_s(struct hash_table *h,
+                         struct hash_entry *e,
+                         const char * key, size_t len);
 
 
 /* insert_hash_table_safe()
@@ -235,10 +253,20 @@ void hash_table_insert(struct hash_table *h,
  * @len: length of the key
  * Description: inserts @e into @h using @e->key as key. thread-safe.
  */
-void hash_table_insert_safe(struct hash_table *h,
+void hash_table_insert_safe_i(struct hash_table *h,
         struct hash_entry *e,
-        const void *key, size_t len);
+        const uintptr_t key, size_t len);
 
+/* insert_hash_table_safe_s()
+ * @h: &struct hash_table hash table to insert hash_entry into
+ * @e: &struct hash_entry
+ * @key: use key to insert the hash_entry
+ * @len: length of the key
+ * Description: inserts @e into @h using @e->key as key. thread-safe.
+ */
+void hash_table_insert_safe_s(struct hash_table *h,
+        struct hash_entry *e,
+        const char * key, size_t len);
 
 /* hash_table_lookup_key()
  * @h: hash table to look into
@@ -250,8 +278,12 @@ void hash_table_insert_safe(struct hash_table *h,
  *                function is not safe from delections. 
  *                function is not thread safe. 
  */
-struct hash_entry *hash_table_lookup_key(const struct hash_table *h,
-        const void *key,
+struct hash_entry *hash_table_lookup_key_i(const struct hash_table *h,
+        const uintptr_t key,
+        size_t len);
+
+struct hash_entry *hash_table_lookup_key_s(const struct hash_table *h,
+        const char *key,
         size_t len);
 
 /* hash_table_lookup_key_safe()
@@ -263,8 +295,12 @@ struct hash_entry *hash_table_lookup_key(const struct hash_table *h,
  * Notes: in the presence of duplicate keys the function returns the first hash_entry found.
  *                function is not safe from delections. 
  */
-struct hash_entry *hash_table_lookup_key_safe(struct hash_table *h,
-        const void *key,
+struct hash_entry *hash_table_lookup_key_safe_i(struct hash_table *h,
+        const uintptr_t key,
+        size_t len);
+
+struct hash_entry *hash_table_lookup_key_safe_s(struct hash_table *h,
+        const char *key,
         size_t len);
 
 
@@ -276,7 +312,14 @@ static inline struct hash_entry *hash_table_lookup_hash_entry(const struct
         hash_table *h,
         const struct hash_entry *e)
 {
-    return (hash_table_lookup_key(h, e->key, e->klen));
+    struct hash_entry * entry = NULL;
+    if(e->_skey)
+    {
+        entry =  (hash_table_lookup_key_s(h, (const char *)e->key, e->klen));
+    } else {
+        entry =  (hash_table_lookup_key_i(h, (const uintptr_t)e->key, e->klen));
+    }
+    return entry;
 }
 
 /* same as hash_table_lookup_key_safe() but this function takes a valid hash_entry as 
@@ -284,30 +327,59 @@ static inline struct hash_entry *hash_table_lookup_hash_entry(const struct
  * words, a hash_entry that is the output of hash_entry_init()
  */
 static inline struct hash_entry *hash_table_lookup_hash_entry_safe(struct hash_table
-        *h, const struct hash_entry
-        *e)
+        *h, const struct hash_entry *e)
 {
-    return (hash_table_lookup_key_safe(h, e->key, e->klen));
+    struct hash_entry * entry = NULL;
+    if(e->_skey)
+    {
+        entry =  (hash_table_lookup_key_safe_s(h, (const char *)e->key, e->klen));
+    } else {
+        entry =  (hash_table_lookup_key_safe_i(h, (const uintptr_t)e->key, e->klen));
+    }
+    return entry;
 }
 
-struct hash_entry *hash_table_del_key(struct hash_table *h, const void *key,
-        size_t len);
+struct hash_entry *hash_table_del_key_i(struct hash_table *h, 
+                                        const uintptr_t key,
+                                        size_t len);
 
-struct hash_entry *hash_table_del_key_safe(struct hash_table *h,
-        const void *key, size_t len);
+struct hash_entry *hash_table_del_key_s(struct hash_table *h, 
+                                        const char *key,
+                                        size_t len);
+
+struct hash_entry *hash_table_del_key_safe_i(struct hash_table *h, 
+                                        const uintptr_t key,
+                                        size_t len);
+
+struct hash_entry *hash_table_del_key_safe_s(struct hash_table *h, 
+                                        const char *key,
+                                        size_t len);
 
 static inline struct hash_entry *hash_table_del_hash_entry(struct hash_table *h,
         struct hash_entry *e)
 {
-    return (hash_table_del_key(h, e->key, e->klen));
+    struct hash_entry * entry = NULL;
+    if(e->_skey)
+    {
+        entry = (hash_table_del_key_s(h, (const char *)e->key, e->klen));
+    } else {
+        entry = (hash_table_del_key_i(h, (const uintptr_t)e->key, e->klen));
+    }
+    return entry;
 }
 
 static inline struct hash_entry *hash_table_del_hash_entry_safe(struct
         hash_table *h,
-        struct
-        hash_entry *e)
+        struct hash_entry *e)
 {
-    return (hash_table_del_key_safe(h, e->key, e->klen));
+    struct hash_entry * entry = NULL;
+    if(e->_skey)
+    {
+        entry = (hash_table_del_key_safe_s(h, (const char *)e->key, e->klen));
+    } else {
+        entry = (hash_table_del_key_safe_i(h, (const uintptr_t)e->key, e->klen));
+    }
+    return entry;
 }
 
 /**

@@ -12,7 +12,7 @@
 #define ADDRESS_HERE() ({ void *p; __asm__("1: mov 1b, %0" : "=r" (p)); p; })
 
 
-static void * last_ptr = NULL;
+static uintptr_t last_ptr = 0;
 
 
 /* The suite initialization function.
@@ -51,7 +51,7 @@ void testHASHCREATE(void)
 
 void testHASHINSERT(void)
 {
-    void * ptr = NULL;
+    uintptr_t ptr = 0;
     struct memalloc * mem = NULL;
 
     if ( (mem = (struct memalloc *)malloc(sizeof(struct memalloc))) ) {
@@ -59,11 +59,13 @@ void testHASHINSERT(void)
         mem->size = 0; 
         mem->bt_size = 0;
 
-        ptr = mem;
-        mem->ptr = ptr; //points to itself.
+        ptr = (uintptr_t)mem;
+        mem->ptr = mem; //points to itself.
         mem->calladdr = (uintptr_t) ADDRESS_HERE(); //this is just a mock address, cuz we don't have a caller
 
-        hash_table_insert_safe( _milu_htable, &mem->hentry, ptr, sizeof(ptr) );
+        hash_table_insert_safe_i( _milu_htable, &mem->hentry, 
+                (const uintptr_t)ptr, sizeof(ptr) );
+
         last_ptr = ptr;
     }
 }
@@ -77,11 +79,11 @@ void testHASHGET(void)
     struct hash_entry * entry = NULL;
     struct memalloc * mem = NULL;
 
-    entry = hash_table_lookup_key_safe( _milu_htable, last_ptr, sizeof(void *) );
+    entry = hash_table_lookup_key_safe_i( _milu_htable, (const uintptr_t)last_ptr, sizeof(void *) );
     CU_ASSERT(0 != entry);
 
     mem = hash_entry( entry, struct memalloc, hentry );
-    CU_ASSERT((mem->ptr == last_ptr));
+    CU_ASSERT(((uintptr_t)mem->ptr == last_ptr));
 }
 void testHASHREMOVE(void)
 {
@@ -90,7 +92,7 @@ void testHASHREMOVE(void)
 void testHASHEXPAND(void)
 {
     uint32_t i = 0;
-    void * ptr = NULL;
+    uintptr_t ptr = 0;
     struct memalloc * mem = NULL;
     uintptr_t addr = (uintptr_t) ADDRESS_HERE();
     size_t old_hsize = _milu_htable->buckets;
@@ -102,11 +104,12 @@ void testHASHEXPAND(void)
             mem->size = 0; 
             mem->bt_size = 0;
 
-            ptr = (void *)mem;
-            mem->ptr = ptr; //points to itself.
+            ptr = (uintptr_t)mem;
+            mem->ptr = mem; //points to itself.
             mem->calladdr = addr; //this is just a mock address.
 
-            hash_table_insert_safe( _milu_htable, &mem->hentry, ptr, sizeof(void *) );
+            hash_table_insert_safe_i( _milu_htable, &mem->hentry, 
+                    (const uintptr_t)ptr, sizeof(void *) );
         }
     }
     CU_ASSERT((_milu_htable->buckets > old_hsize));
