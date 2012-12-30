@@ -14,8 +14,11 @@
  * machines where multiplications are slow.
  */
 
+#if 0
 #include <asm-generic/types.h>
 #include <asm-generic/bitsperlong.h>
+#endif
+#include "compatibility.h"
 
 /* 2^31 + 2^29 - 2^25 + 2^22 - 2^19 - 2^16 + 1 */
 #define GOLDEN_RATIO_PRIME_32 0x9e370001UL
