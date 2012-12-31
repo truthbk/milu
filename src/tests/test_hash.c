@@ -8,8 +8,13 @@
 #include "hash/hash.h"
 #include "list/list.h"
 
-/* dirty hack to get some addresses  */
+/* dirty hack to get current address  */
+#ifdef __APPLE__
+//OSX otherwise fails due to 32-bit absolute addressing is not supported for x86-64 
+#define ADDRESS_HERE() ({ void *p; __asm__("1: mov 1b(%%rip), %0" : "=r" (p)); p; })
+#elif __GNUC__
 #define ADDRESS_HERE() ({ void *p; __asm__("1: mov 1b, %0" : "=r" (p)); p; })
+#endif
 
 
 static uintptr_t last_ptr = 0;
