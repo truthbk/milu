@@ -14,8 +14,10 @@ struct pool {
     uint16_t _n_q;
     size_t _obj_sz;
 
-    list_head used_q; 
-    list_head avail_q; 
+    uintptr_t _start_addr;
+    uintptr_t _end_addr;
+
+    struct queue avail_q; 
 }
 
 struct pool * create_pool(uint16_t p_sz, size_t o_sz);
