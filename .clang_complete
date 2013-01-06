@@ -1,6 +1,6 @@
 -DDEBUG
 -I./include
 -I./include/milu
--I./include/miluhlib
+-I./include/milutil
 -I/usr/include
 -I/opt/local/include

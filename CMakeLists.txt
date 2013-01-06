@@ -22,7 +22,7 @@ endif(CUNIT_FOUND)
 # include dirs
 include_directories(${PROJECT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/include/milu/
-	${PROJECT_SOURCE_DIR}/include/miluhlib)
+	${PROJECT_SOURCE_DIR}/include/milutil)
 
 set(CMAKE_C_FLAGS "-Wall -W -fbuiltin")
 set(CMAKE_CXX_FLAGS "-Wall -W -fbuiltin")
