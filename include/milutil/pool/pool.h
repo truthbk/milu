@@ -14,9 +14,12 @@ struct pool {
     uint16_t _n_q;
     size_t _obj_sz;
 
+    struct pool_entry * _entries;
+    char * _pool_mem;
     uintptr_t _start_addr;
     uintptr_t _end_addr;
 
+    struct queue pool_q; 
     struct queue avail_q; 
 }
 
