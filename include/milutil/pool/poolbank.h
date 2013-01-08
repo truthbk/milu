@@ -13,9 +13,9 @@ struct bank {
 
 
     struct pool **bank;
-}
+};
 
-struct bank * create_bank( int16_t  n_pools
+struct bank * create_bank( uint16_t n_pools
                          , int8_t   growing
                          , uint16_t poolsize
                          , size_t   objsize );

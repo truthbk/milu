@@ -3,11 +3,12 @@
 
 #include <stdint.h>
 #include "list/list.h"
+#include "queue/queue.h"
 
 struct pool_entry {
     void * ptr;
     struct list_head q_e; //pool queue
-}
+};
 
 struct pool {
     uint16_t _nobjs;
@@ -21,7 +22,7 @@ struct pool {
 
     struct queue pool_q; 
     struct queue avail_q; 
-}
+};
 
 struct pool * create_pool(uint16_t p_sz, size_t o_sz);
 
@@ -29,6 +30,6 @@ int destroy_pool(struct pool * p);
 
 void * pool_get_ptr(struct pool * p);
 
-int pool_put_ptr(struct pool * p, void * p);
+int pool_put_ptr(struct pool * p, void * ptr);
 
 #endif

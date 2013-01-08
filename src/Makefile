@@ -184,6 +184,54 @@ milutil/hashtbl.c.s:
 	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/milutil/hashtbl.c.s
 .PHONY : milutil/hashtbl.c.s
 
+milutil/pool.o: milutil/pool.c.o
+.PHONY : milutil/pool.o
+
+# target to build an object file
+milutil/pool.c.o:
+	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/milutil/pool.c.o
+.PHONY : milutil/pool.c.o
+
+milutil/pool.i: milutil/pool.c.i
+.PHONY : milutil/pool.i
+
+# target to preprocess a source file
+milutil/pool.c.i:
+	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/milutil/pool.c.i
+.PHONY : milutil/pool.c.i
+
+milutil/pool.s: milutil/pool.c.s
+.PHONY : milutil/pool.s
+
+# target to generate assembly for a file
+milutil/pool.c.s:
+	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/milutil/pool.c.s
+.PHONY : milutil/pool.c.s
+
+milutil/poolbank.o: milutil/poolbank.c.o
+.PHONY : milutil/poolbank.o
+
+# target to build an object file
+milutil/poolbank.c.o:
+	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/milutil/poolbank.c.o
+.PHONY : milutil/poolbank.c.o
+
+milutil/poolbank.i: milutil/poolbank.c.i
+.PHONY : milutil/poolbank.i
+
+# target to preprocess a source file
+milutil/poolbank.c.i:
+	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/milutil/poolbank.c.i
+.PHONY : milutil/poolbank.c.i
+
+milutil/poolbank.s: milutil/poolbank.c.s
+.PHONY : milutil/poolbank.s
+
+# target to generate assembly for a file
+milutil/poolbank.c.s:
+	cd /home/truth/Development/github/milu && $(MAKE) -f src/CMakeFiles/hmilu.dir/build.make src/CMakeFiles/hmilu.dir/milutil/poolbank.c.s
+.PHONY : milutil/poolbank.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -201,6 +249,12 @@ help:
 	@echo "... milutil/hashtbl.o"
 	@echo "... milutil/hashtbl.i"
 	@echo "... milutil/hashtbl.s"
+	@echo "... milutil/pool.o"
+	@echo "... milutil/pool.i"
+	@echo "... milutil/pool.s"
+	@echo "... milutil/poolbank.o"
+	@echo "... milutil/poolbank.i"
+	@echo "... milutil/poolbank.s"
 .PHONY : help
 
 
