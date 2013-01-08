@@ -8,10 +8,24 @@
 struct bank {
     uint16_t _max_pools;
     uint16_t _allocd_pools;
+    uint16_t _poolsz;
+    size_t   _objsz;
+
 
     struct pool **bank;
-
 }
 
+struct bank * create_bank( int16_t  n_pools
+                         , int8_t   growing
+                         , uint16_t poolsize
+                         , size_t   objsize );
+
+int destroy_bank(struct bank * b);
+
+int add_pool(struct bank * b);
+
+void * bank_get_ptr(struct bank * b);
+
+int bank_put_ptr(struct bank * b, void * p);
 
 #endif
