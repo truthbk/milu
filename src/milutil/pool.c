@@ -5,7 +5,7 @@
 
 static pool_allocator _p_allocator = malloc;
 
-struct pool * init_pool(uint16_t p_sz, size_t o_sz) {
+struct pool * create_pool(uint16_t p_sz, size_t o_sz) {
     struct pool * p = NULL;
     struct pool_entry * e = NULL;
     char * mem = NULL;
