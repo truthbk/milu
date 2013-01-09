@@ -15,6 +15,8 @@ struct bank {
     struct pool **bank;
 };
 
+typedef void * (* bank_allocator)(size_t size);
+
 struct bank * create_bank( uint16_t n_pools
                          , int8_t   growing
                          , uint16_t poolsize
@@ -27,5 +29,7 @@ int add_pool(struct bank * b);
 void * bank_get_ptr(struct bank * b);
 
 int bank_put_ptr(struct bank * b, void * p);
+
+void custom_b_allocator(bank_allocator allocator);
 
 #endif

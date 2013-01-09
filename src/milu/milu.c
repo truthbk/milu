@@ -93,6 +93,24 @@ static inline int _init_htable(void)
     return 0;
 }
 
+
+static inline int _init_pools(void)
+{
+    if(!_milu_pools)
+    {
+        //must use custom allocator (wrapper for real malloc with no accounting).
+        custom_b_allocator(_malloc);
+        _milu_pools = create_bank(1, 1, POOLSIZE, sizeof(struct memalloc));;
+        if(!_milu_pools)
+        {
+            //we could potentially go on and just not use pooling....
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 #ifdef _VERBOSE
 /**
  *  * malloc() call recorder
@@ -130,7 +148,7 @@ static inline uint8_t init_milu(void)
      *
      * If we fail to init the hashtable, milu remains disabled.
      * */
-    if( !milu_enabled && _init_htable()){
+    if( !milu_enabled && !_init_htable() && !_init_pools() ){
         enable = 0;
     }
     else {
@@ -163,12 +181,17 @@ void * malloc(size_t size)
     if(likely(milu_enabled))
     {
         call = calladdr();
-
+#if 0
         //create a memalloc struct, init, and put in hashtable
         if(!(mem = _malloc(sizeof(struct memalloc))))
         {
             //ERROR
         }
+#endif
+        if(!(mem = (struct memalloc *)bank_get_ptr(_milu_pools))) {
+            //ERROR
+        }
+
 
         //initialize struct fields.
         mem->ptr = ptr; //kinda useless, only first ptr stored.... hmmmmm :S
@@ -220,9 +243,14 @@ void * calloc(size_t nmemb, size_t size)
     {
         call = calladdr();
 
+#if 0
         //create a memalloc struct, init, and put in hashtable
         if(!(mem = _malloc(sizeof(struct memalloc))))
         {
+            //ERROR
+        }
+#endif
+        if(!(mem = (struct memalloc *)bank_get_ptr(_milu_pools))) {
             //ERROR
         }
 
@@ -284,9 +312,14 @@ void * realloc(void * ptr, size_t size)
             mem_old = hash_entry(entry, struct memalloc, hentry);
         }
 
+#if 0
         //create a memalloc struct, init, and put in hashtable
         if(!(mem = (struct memalloc *) _malloc(sizeof(struct memalloc))))
         {
+            //ERROR
+        }
+#endif
+        if(!(mem = (struct memalloc *)bank_get_ptr(_milu_pools))) {
             //ERROR
         }
 
@@ -367,7 +400,10 @@ void free(void * ptr)
 
         if (likely(!!mem)) {
             _free(mem->bt);
+#if 0
             _free(mem);
+#endif
+            bank_put_ptr(_milu_pools, (void *)mem);
         }
     }
 

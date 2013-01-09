@@ -24,6 +24,8 @@ struct pool {
     struct queue avail_q; 
 };
 
+typedef void * (* pool_allocator)(size_t size);
+
 struct pool * create_pool(uint16_t p_sz, size_t o_sz);
 
 int destroy_pool(struct pool * p);
@@ -31,5 +33,7 @@ int destroy_pool(struct pool * p);
 void * pool_get_ptr(struct pool * p);
 
 int pool_put_ptr(struct pool * p, void * ptr);
+
+void custom_p_allocator(pool_allocator allocator);
 
 #endif

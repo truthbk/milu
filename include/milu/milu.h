@@ -3,6 +3,8 @@
 
 #include "hashtbl/hashtbl.h"
 #include "hash/hash.h"
+#include "hash/hash.h"
+#include "pool/poolbank.h"
 
 #ifndef likely
 #define likely(x) __builtin_expect((x), 1)
@@ -26,6 +28,8 @@
 
 //must be init'd
 struct hash_table * _milu_htable = NULL;
+#define POOLSIZE 20000
+struct bank * _milu_pools = NULL;
 
 typedef void * (* malloc_fn_t)( size_t );
 typedef void * (* realloc_fn_t)( void *, size_t );

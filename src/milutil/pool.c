@@ -3,14 +3,14 @@
 
 #include "pool/pool.h"
 
-
+static pool_allocator _p_allocator = malloc;
 
 struct pool * init_pool(uint16_t p_sz, size_t o_sz) {
     struct pool * p = NULL;
     struct pool_entry * e = NULL;
     char * mem = NULL;
 
-    if(!(p = malloc(sizeof(struct pool)))){
+    if(!(p = _p_allocator(sizeof(struct pool)))){
         return NULL;
     }
 
@@ -20,14 +20,14 @@ struct pool * init_pool(uint16_t p_sz, size_t o_sz) {
     p->_nobjs = p_sz;
     p->_obj_sz = o_sz;
 
-    if(!(mem = malloc(p_sz * o_sz))) {
+    if(!(mem = _p_allocator(p_sz * o_sz))) {
         free(p);
         return NULL;
     }
     p->_pool_mem = mem;
     p->_start_addr = (uintptr_t)mem;
 
-    if(!(e = malloc( p_sz * sizeof(struct pool_entry)))) {
+    if(!(e = _p_allocator( p_sz * sizeof(struct pool_entry)))) {
         free(p->_pool_mem);
         free(p);
         return NULL;
@@ -110,3 +110,11 @@ int pool_put_ptr(struct pool * p, void * ptr) {
 
     return 0;
 }
+
+void custom_p_allocator(pool_allocator allocator) {
+    if(!allocator)
+        return;
+    _p_allocator = allocator;
+
+    return;
+};
