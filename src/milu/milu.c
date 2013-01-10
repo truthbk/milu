@@ -93,7 +93,7 @@ static inline int _init_htable(void)
     return 0;
 }
 
-
+#ifdef _POOLING
 static inline int _init_pools(void)
 {
     if(!_milu_pools)
@@ -110,6 +110,7 @@ static inline int _init_pools(void)
 
     return 0;
 }
+#endif
 
 #ifdef _VERBOSE
 /**
@@ -181,16 +182,17 @@ void * malloc(size_t size)
     if(likely(milu_enabled))
     {
         call = calladdr();
-#if 0
+#ifdef _POOLING
+        if(!(mem = (struct memalloc *)bank_get_ptr(_milu_pools))) {
+            //ERROR
+        }
+#else
         //create a memalloc struct, init, and put in hashtable
         if(!(mem = _malloc(sizeof(struct memalloc))))
         {
             //ERROR
         }
 #endif
-        if(!(mem = (struct memalloc *)bank_get_ptr(_milu_pools))) {
-            //ERROR
-        }
 
 
         //initialize struct fields.
@@ -243,16 +245,17 @@ void * calloc(size_t nmemb, size_t size)
     {
         call = calladdr();
 
-#if 0
+#ifdef _POOLING
+        if(!(mem = (struct memalloc *)bank_get_ptr(_milu_pools))) {
+            //ERROR
+        }
+#else
         //create a memalloc struct, init, and put in hashtable
         if(!(mem = _malloc(sizeof(struct memalloc))))
         {
             //ERROR
         }
 #endif
-        if(!(mem = (struct memalloc *)bank_get_ptr(_milu_pools))) {
-            //ERROR
-        }
 
         //initialize struct fields.
         mem->ptr = ptr;
@@ -312,16 +315,17 @@ void * realloc(void * ptr, size_t size)
             mem_old = hash_entry(entry, struct memalloc, hentry);
         }
 
-#if 0
+#ifdef _POOLING
+        if(!(mem = (struct memalloc *)bank_get_ptr(_milu_pools))) {
+            //ERROR
+        }
+#else
         //create a memalloc struct, init, and put in hashtable
         if(!(mem = (struct memalloc *) _malloc(sizeof(struct memalloc))))
         {
             //ERROR
         }
 #endif
-        if(!(mem = (struct memalloc *)bank_get_ptr(_milu_pools))) {
-            //ERROR
-        }
 
         //initialize struct fields.
         mem->ptr = nptr; 
@@ -400,10 +404,11 @@ void free(void * ptr)
 
         if (likely(!!mem)) {
             _free(mem->bt);
-#if 0
+#ifdef _PPOLING
+            bank_put_ptr(_milu_pools, (void *)mem);
+#else
             _free(mem);
 #endif
-            bank_put_ptr(_milu_pools, (void *)mem);
         }
     }
 
