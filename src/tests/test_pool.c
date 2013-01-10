@@ -7,6 +7,17 @@
 #include "pool/poolbank.h"
 
 
+static struct bank * _bank = NULL;
+#define N_POOLS 2
+#define POOLSZ 10
+
+struct test_struct {
+    int    _testint;
+    char * _testptr;
+};
+
+struct test_struct * ts = NULL;
+struct test_struct ** tss[N_POOLS*POOLSZ];
 
 /* The suite initialization function.
  * Opens the temporary file used by the tests.
@@ -28,32 +39,43 @@ int clean_suite1(void)
 
 void testPOOLBANKCREATE(void)
 {
-    CU_ASSERT(1);
+    _bank = create_bank( N_POOLS, 0, 
+                         POOLSZ, 
+                         sizeof(struct test_struct) );
+    CU_ASSERT( _bank != NULL);
 }
 
 void testPOOLBANKGET(void)
 {
-    CU_ASSERT(1);
+    ts = bank_get_ptr(_bank);
+    CU_ASSERT(ts != NULL);
 }
 
 void testPOOLBANKPUT(void)
 {
-    CU_ASSERT(1);
-
+    CU_ASSERT( bank_put_ptr(_bank, (void *)ts) == 0);
+    ts = NULL;
 }
 void testPOOLBANKGETALL(void)
 {
-    CU_ASSERT(1);
+    for( int i=0 ; i<N_POOLS*POOLSZ ; i++ ) {
+        tss[i] = bank_get_ptr(_bank);
+        CU_ASSERT( tss[i] != NULL );
+    }
+    ts = bank_get_ptr(_bank);
+    CU_ASSERT(ts == NULL);
 }
 
 void testPOOLBANKPUTALL(void)
 {
-    CU_ASSERT(1);
+    for( int i=0 ; i<N_POOLS*POOLSZ ; i++ ) {
+        CU_ASSERT( bank_put_ptr(_bank, (void *)tss[i]) == 0);
+    }
 }
 
 void testPOOLBANKDESTROY(void)
 {
-    CU_ASSERT(1);
+    CU_ASSERT(destroy_bank(_bank));
 }
 
 /* The main() function for setting up and running the tests.
