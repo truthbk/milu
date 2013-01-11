@@ -62,7 +62,6 @@ int destroy_bank(struct bank * b) {
         if(ret)
             err++;
 
-        b->_allocd_pools--;
     }
     free(b->bank);
     free(b);

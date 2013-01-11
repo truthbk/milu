@@ -97,7 +97,7 @@ int pool_put_ptr(struct pool * p, void * ptr) {
         return -1; //will need to come up with error codes.
     }
 
-    lh = get_fifo(&p->pool_q);
+    lh = get_fifo(&p->avail_q);
     if(!lh) {
         //this would be weird.
         return -1;

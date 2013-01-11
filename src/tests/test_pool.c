@@ -17,7 +17,7 @@ struct test_struct {
 };
 
 struct test_struct * ts = NULL;
-struct test_struct ** tss[N_POOLS*POOLSZ];
+struct test_struct * tss[N_POOLS*POOLSZ];
 
 /* The suite initialization function.
  * Opens the temporary file used by the tests.
@@ -58,6 +58,7 @@ void testPOOLBANKPUT(void)
 }
 void testPOOLBANKGETALL(void)
 {
+    memset(tss, 0, sizeof(struct test_struct *)*N_POOLS*POOLSZ);
     for( int i=0 ; i<N_POOLS*POOLSZ ; i++ ) {
         tss[i] = bank_get_ptr(_bank);
         CU_ASSERT( tss[i] != NULL );
@@ -75,7 +76,7 @@ void testPOOLBANKPUTALL(void)
 
 void testPOOLBANKDESTROY(void)
 {
-    CU_ASSERT(destroy_bank(_bank));
+    CU_ASSERT(destroy_bank(_bank) == 0);
 }
 
 /* The main() function for setting up and running the tests.
